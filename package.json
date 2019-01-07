@@ -12,7 +12,7 @@
     "watch-javascripts-app": "babel assets/js/app --watch --out-file soundboard.js --source-maps",
     "watch-javascripts-sw": "babel assets/js/service-worker --watch --out-file service-worker.js --source-maps",
     "watch-jsmediatags": "onchange 'node_modules/jsmediatags/dist/jsmediatags.min.js' -- npm run copy-jsmediatags",
-    "copy-jsmediatags": "cp node_modules/jsmediatags/dist/jsmediatags.min.js assets/js/app/jsmediatags.min.js",
+    "copy-jsmediatags": "cp node_modules/jsmediatags/dist/jsmediatags.min.js assets/js/app/lib/jsmediatags.min.js",
     "sass": "sass assets/css/index.scss soundboard.css"
   },
   "dependencies": {

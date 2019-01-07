@@ -14,18 +14,21 @@
 class ClickHandler {
 
   constructor() {
-    document.addEventListener('click', (e) => this._handleClick(e));
     this._handlers = {};
+    document.addEventListener('click',     (e) => this._callHandler('click',     e));
+    document.addEventListener('mousedown', (e) => this._callHandler('mousedown', e));
+    document.addEventListener('mouseup',   (e) => this._callHandler('mouseup',   e));
   }
 
-  register(selector, callback) {
-    this._handlers[selector] = callback;
+  register(selector, handlers = {click: null, mousedown: null, mouseup: null}) {
+    this._handlers[selector] = handlers;
   }
 
-  _handleClick(e) {
+  _callHandler(type, e) {
     Object.keys(this._handlers).forEach((selector) => {
       if (e.target.matches(selector)) {
-        this._handlers[selector](e);
+        let handler = this._handlers[selector][type];
+        if ( handler ) { handler(e); }
       }
     });
   }

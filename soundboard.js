@@ -6,155 +6,52 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-/**
- * Okay, so why do we need this? Why a whole class to implement our own version
- * of click handling? Am I insane?
- *
- * Well, maybe, but not because of this.
- *
- * This class installs one single click handler on the whole document, and
- * evaluates which callback to call at click time, based on the element that has
- * been clicked. This allows us to swap out and rerender whole sections of the
- * DOM without having to reinstall a bunch of click handlers each time. This
- * nicely decouples the render logic from the click event management logic.
- */
-var ClickHandler =
+var BoardRenderer =
 /*#__PURE__*/
 function () {
-  function ClickHandler() {
-    var _this = this;
+  function BoardRenderer(element, board) {
+    _classCallCheck(this, BoardRenderer);
 
-    _classCallCheck(this, ClickHandler);
-
-    document.addEventListener('click', function (e) {
-      return _this._handleClick(e);
-    });
-    this._handlers = {};
+    this._element = element;
+    this._board = board;
   }
 
-  _createClass(ClickHandler, [{
-    key: "register",
-    value: function register(selector, callback) {
-      this._handlers[selector] = callback;
-    }
-  }, {
-    key: "_handleClick",
-    value: function _handleClick(e) {
-      var _this2 = this;
+  _createClass(BoardRenderer, [{
+    key: "render",
+    value: function render() {
+      var html = '';
 
-      Object.keys(this._handlers).forEach(function (selector) {
-        if (e.target.matches(selector)) {
-          _this2._handlers[selector](e);
-        }
-      });
-    }
-  }]);
+      for (var y = 0; y < this._board.rows; y++) {
+        html += "<div class='row'>";
 
-  return ClickHandler;
-}();
-"use strict";
+        for (var x = 0; x < this._board.cols; x++) {
+          var sound = this._board.getSound(x, y);
 
-window.addEventListener('load', function () {
-  var clickHandler = new ClickHandler();
-  var dragDrop = new DragDrop();
-  dragDrop.register('.sound', loadSong);
-  clickHandler.register('.sound', playSong);
+          var title = void 0,
+              artist = void 0,
+              colour = void 0;
 
-  function loadSong(e) {
-    var files = e.dataTransfer.files;
-    var sound = e.target;
-
-    for (var j = 0; j < files.length; j++) {
-      if (files[j].type.match(/audio\/(mp3|mpeg)/)) {
-        // Put the audio file in the relevant audio tag
-        var reader = new FileReader();
-
-        reader.onload = function (data) {
-          sound.querySelector('audio').src = data.currentTarget.result;
-        };
-
-        reader.readAsDataURL(files[j]); // Update button with ID3 tags
-
-        window.jsmediatags.read(files[j], {
-          onSuccess: function onSuccess(tag) {
-            console.log(tag);
-            sound.querySelector('h1').innerText = tag.tags.title || "Unknown song";
-            sound.querySelector('p').innerText = tag.tags.artist || "";
-            sound.classList.add('loaded');
-          },
-          onError: function onError(error) {
-            console.error(error);
+          if (sound) {
+            title = sound.mp3File.getTag('title') || 'Unknown song';
+            artist = sound.mp3File.getTag('artist');
+            colour = sound.colour;
+          } else {
+            title = 'Drop an mp3 file here';
+            artist = '';
+            colour = 'gray';
           }
-        });
+
+          html += "\n          <div class='sound ".concat(sound ? 'loaded' : '', "'\n               data-x='").concat(x, "' data-y='").concat(y, "'\n               style='background-color: ").concat(colour, "'>\n            <h1>").concat(title, "</h1>\n            <p>").concat(artist, "</p>\n          </div>\n        ");
+        }
+
+        html += "</div>";
       }
-    }
 
-    console.log("Thing dropped: done!");
-  }
-
-  function playSong(e) {
-    var audio = e.target.querySelector('audio');
-    audio.load();
-    audio.play();
-  }
-});
-"use strict";
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-/**
- * Fancy thing for file drag an drop, kinda similar to click-handler.js
- */
-var DragDrop =
-/*#__PURE__*/
-function () {
-  function DragDrop() {
-    _classCallCheck(this, DragDrop);
-  }
-
-  _createClass(DragDrop, [{
-    key: "register",
-    value: function register(selector, callback) {
-      var elements = document.querySelectorAll(selector);
-
-      for (var i = 0; i < elements.length; i++) {
-        elements[i].addEventListener('dragover', this._dragOver);
-        elements[i].addEventListener('dragleave', this._dragLeave);
-        elements[i].addEventListener('drop', this._drop(callback));
-      }
-    }
-  }, {
-    key: "_dragOver",
-    value: function _dragOver(e) {
-      e.stopPropagation();
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'copy';
-      e.target.classList.add('dragging');
-    }
-  }, {
-    key: "_dragLeave",
-    value: function _dragLeave(e) {
-      e.stopPropagation();
-      e.preventDefault();
-      e.target.classList.remove('dragging');
-    }
-  }, {
-    key: "_drop",
-    value: function _drop(callback) {
-      return function (e) {
-        e.stopPropagation();
-        e.preventDefault();
-        e.target.classList.remove('dragging');
-        callback(e);
-      };
+      this._element.innerHTML = html;
     }
   }]);
 
-  return DragDrop;
+  return BoardRenderer;
 }();
 "use strict";
 
@@ -2579,6 +2476,485 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
     }]
   }, {}, [15])(15);
 });
+"use strict";
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+window.addEventListener('load', function () {
+  var board = new Board();
+  var boardRenderer = new BoardRenderer(document.getElementById('board'), board);
+  var clickHandler = new ClickHandler();
+  var dragDrop = new DragDrop();
+
+  function _soundFromEvent(e) {
+    // Where do we live "in the grid"?
+    var x = e.target.getAttribute('data-x');
+    var y = e.target.getAttribute('data-y');
+    return [board.getSound(x, y), x, y];
+  }
+
+  function loadSound(e) {
+    // Only parse the first file, we expect no more
+    var file = e.dataTransfer.files[0];
+    var mp3File = new Mp3File(file); // Find our sound
+
+    var _soundFromEvent2 = _soundFromEvent(e),
+        _soundFromEvent3 = _slicedToArray(_soundFromEvent2, 3),
+        sound = _soundFromEvent3[0],
+        x = _soundFromEvent3[1],
+        y = _soundFromEvent3[2];
+
+    sound = sound || new Sound(); // Update that position
+
+    sound.mp3File = mp3File;
+    board.placeSound(x, y, sound); // Rerender the board (this needs to be improved)
+
+    window.setTimeout(function () {
+      boardRenderer.render();
+    }, 300);
+  }
+
+  function pushSound(e) {
+    var _soundFromEvent4 = _soundFromEvent(e),
+        _soundFromEvent5 = _slicedToArray(_soundFromEvent4, 1),
+        sound = _soundFromEvent5[0];
+
+    if (sound) {
+      sound.push();
+    }
+  }
+
+  function releaseSound(e) {
+    var _soundFromEvent6 = _soundFromEvent(e),
+        _soundFromEvent7 = _slicedToArray(_soundFromEvent6, 1),
+        sound = _soundFromEvent7[0];
+
+    if (sound) {
+      sound.release();
+    }
+  } // GO!
+
+
+  dragDrop.register('.sound', loadSound);
+  clickHandler.register('.sound', {
+    mousedown: pushSound,
+    mouseup: releaseSound
+  });
+  boardRenderer.render();
+});
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Board =
+/*#__PURE__*/
+function () {
+  function Board() {
+    _classCallCheck(this, Board);
+
+    this._rows = 3;
+    this._cols = 3;
+    this._grid = [];
+
+    this._makeGrid();
+  }
+
+  _createClass(Board, [{
+    key: "_makeGrid",
+    value: function _makeGrid() {
+      for (var y = 0; y < this._rows; y++) {
+        this._grid[y] = this._grid[y] || [];
+
+        for (var x = 0; x < this._cols; x++) {
+          this._grid[y][x] = this._grid[y][x] || null;
+        }
+      }
+    }
+  }, {
+    key: "_validateCoords",
+    value: function _validateCoords(x, y) {
+      if (x === undefined || y === undefined || x > this._cols || y > this._rows || x < 0 || y < 0) {
+        throw new Error('Out of bounds');
+      }
+    } // Public methods
+
+  }, {
+    key: "addColumn",
+    value: function addColumn() {
+      this._cols += 1;
+
+      this._makeGrid();
+    }
+  }, {
+    key: "addRow",
+    value: function addRow() {
+      this._rows += 1;
+
+      this._makeGrid();
+    }
+  }, {
+    key: "placeSound",
+    value: function placeSound(x, y, sound) {
+      this._validateCoords(x, y);
+
+      this._grid[y][x] = sound;
+    }
+  }, {
+    key: "getSound",
+    value: function getSound(x, y) {
+      this._validateCoords(x, y);
+
+      return this._grid[y][x];
+    }
+  }, {
+    key: "cols",
+    get: function get() {
+      return this._cols;
+    }
+  }, {
+    key: "rows",
+    get: function get() {
+      return this._rows;
+    }
+  }]);
+
+  return Board;
+}();
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Mp3File =
+/*#__PURE__*/
+function () {
+  function Mp3File(file) {
+    _classCallCheck(this, Mp3File);
+
+    if (!file.type.match(/audio\/(mp3|mpeg)/)) {
+      throw new Error('Invalid file type');
+    }
+
+    this._fileData = null;
+    this._tags = {}; // Read in file
+
+    var reader = new FileReader();
+    reader.addEventListener('load', this._readData(this));
+    reader.readAsDataURL(file); // Parse meta data
+
+    if (window.jsmediatags) {
+      window.jsmediatags.read(file, {
+        onSuccess: this._readTags(this),
+        onError: function onError(error) {
+          throw new Error(error);
+        }
+      });
+    }
+  }
+
+  _createClass(Mp3File, [{
+    key: "_readData",
+    value: function _readData(_this) {
+      return function (data) {
+        _this._fileData = data.target.result;
+      };
+    }
+  }, {
+    key: "_readTags",
+    value: function _readTags(_this) {
+      return function (tag) {
+        _this._tags = tag.tags;
+      };
+    } // Public methods
+
+  }, {
+    key: "getTag",
+    value: function getTag(tag) {
+      return this._tags[tag] || "";
+    }
+  }, {
+    key: "data",
+    get: function get() {
+      return this._fileData;
+    }
+  }]);
+
+  return Mp3File;
+}();
+"use strict";
+
+var PlayMode = {
+  OneShot: 1,
+  StartStop: 2,
+  Hold: 3
+};
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var Sound =
+/*#__PURE__*/
+function () {
+  function Sound(mp3File) {
+    _classCallCheck(this, Sound);
+
+    this._mp3File = mp3File;
+    this._colour = 'red';
+    this._playMode = PlayMode.OneShot;
+    this._player = new Audio();
+    this._playerLoaded = false;
+  }
+
+  _createClass(Sound, [{
+    key: "_loadPlayer",
+    value: function _loadPlayer() {
+      if (!this._playerLoaded) {
+        this._player.src = this._mp3File.data;
+
+        this._player.load();
+
+        this._playerLoaded = true;
+      }
+    } // Setters
+
+  }, {
+    key: "setPlayModeOneShot",
+    value: function setPlayModeOneShot() {
+      this._playMode = PlayMode.OneShot;
+    }
+  }, {
+    key: "setPlayModeStartStop",
+    value: function setPlayModeStartStop() {
+      this._playMode = PlayMode.StartStop;
+    }
+  }, {
+    key: "setPlayModeHold",
+    value: function setPlayModeHold() {
+      this._playMode = PlayMode.Hold;
+    } // Getters
+
+  }, {
+    key: "push",
+    // Playback
+    value: function push() {
+      this._loadPlayer();
+
+      this._player.currentTime = 0;
+
+      switch (this._playMode) {
+        case PlayMode.OneShot:
+          this._player.play();
+
+          break;
+
+        case PlayMode.StartStop:
+          if (this._player.paused) {
+            this._player.play();
+          } else {
+            this._player.pause();
+          }
+
+          break;
+
+        case PlayMode.Hold:
+          this._player.loop = true;
+
+          this._player.play();
+
+          break;
+      }
+    }
+  }, {
+    key: "release",
+    value: function release() {
+      switch (this._playMode) {
+        case PlayMode.Hold:
+          this._player.pause();
+
+          break;
+      }
+    }
+  }, {
+    key: "mp3File",
+    set: function set(mp3File) {
+      this._mp3File = mp3File || this._mp3File;
+      this._playerLoaded = false;
+    },
+    get: function get() {
+      return this._mp3File;
+    }
+  }, {
+    key: "colour",
+    set: function set(colour) {
+      this._colour = colour || this._colour;
+    },
+    get: function get() {
+      return this._colour;
+    }
+  }, {
+    key: "playMode",
+    get: function get() {
+      return this._playMode;
+    }
+  }]);
+
+  return Sound;
+}();
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+/**
+ * Okay, so why do we need this? Why a whole class to implement our own version
+ * of click handling? Am I insane?
+ *
+ * Well, maybe, but not because of this.
+ *
+ * This class installs one single click handler on the whole document, and
+ * evaluates which callback to call at click time, based on the element that has
+ * been clicked. This allows us to swap out and rerender whole sections of the
+ * DOM without having to reinstall a bunch of click handlers each time. This
+ * nicely decouples the render logic from the click event management logic.
+ */
+var ClickHandler =
+/*#__PURE__*/
+function () {
+  function ClickHandler() {
+    var _this = this;
+
+    _classCallCheck(this, ClickHandler);
+
+    this._handlers = {};
+    document.addEventListener('click', function (e) {
+      return _this._callHandler('click', e);
+    });
+    document.addEventListener('mousedown', function (e) {
+      return _this._callHandler('mousedown', e);
+    });
+    document.addEventListener('mouseup', function (e) {
+      return _this._callHandler('mouseup', e);
+    });
+  }
+
+  _createClass(ClickHandler, [{
+    key: "register",
+    value: function register(selector) {
+      var handlers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
+        click: null,
+        mousedown: null,
+        mouseup: null
+      };
+      this._handlers[selector] = handlers;
+    }
+  }, {
+    key: "_callHandler",
+    value: function _callHandler(type, e) {
+      var _this2 = this;
+
+      Object.keys(this._handlers).forEach(function (selector) {
+        if (e.target.matches(selector)) {
+          var handler = _this2._handlers[selector][type];
+
+          if (handler) {
+            handler(e);
+          }
+        }
+      });
+    }
+  }]);
+
+  return ClickHandler;
+}();
+"use strict";
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+/**
+ * Fancy thing for file drag an drop, kinda similar to click-handler.js
+ */
+var DragDrop =
+/*#__PURE__*/
+function () {
+  function DragDrop() {
+    var _this = this;
+
+    _classCallCheck(this, DragDrop);
+
+    this._handlers = {};
+    document.addEventListener('dragover', function (e) {
+      return _this._dragOver(e);
+    });
+    document.addEventListener('dragleave', function (e) {
+      return _this._dragLeave(e);
+    });
+    document.addEventListener('drop', function (e) {
+      return _this._drop(e);
+    });
+  }
+
+  _createClass(DragDrop, [{
+    key: "register",
+    value: function register(selector, callback) {
+      this._handlers[selector] = callback;
+    }
+  }, {
+    key: "_dragOver",
+    value: function _dragOver(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'copy';
+      e.target.classList.add('dragging');
+    }
+  }, {
+    key: "_dragLeave",
+    value: function _dragLeave(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      e.target.classList.remove('dragging');
+    }
+  }, {
+    key: "_drop",
+    value: function _drop(e) {
+      var _this2 = this;
+
+      e.stopPropagation();
+      e.preventDefault();
+      e.target.classList.remove('dragging');
+      Object.keys(this._handlers).forEach(function (selector) {
+        if (e.target.matches(selector)) {
+          _this2._handlers[selector](e);
+        }
+      });
+    }
+  }]);
+
+  return DragDrop;
+}();
 "use strict";
 
 // Install Service worker
