@@ -1,0 +1,35 @@
+{
+  "name": "Soundboard",
+  "version": "0.0.1",
+  "contributors": [
+    "Tim Franssen"
+  ],
+  "repository": "Timendus/soundboard",
+  "scripts": {
+    "start": "concurrently \"npm run watch-stylesheets\" \"npm run watch-javascripts-app\" \"npm run serve\" \"npm run watch-javascripts-sw\" \"npm run watch-jsmediatags\"",
+    "serve": "browser-sync start --server --files '*'",
+    "watch-stylesheets": "onchange 'assets/css/**/*.*' -- npm run sass",
+    "watch-javascripts-app": "babel assets/js/app --watch --out-file soundboard.js --source-maps",
+    "watch-javascripts-sw": "babel assets/js/service-worker --watch --out-file service-worker.js --source-maps",
+    "watch-jsmediatags": "onchange 'node_modules/jsmediatags/dist/jsmediatags.min.js' -- npm run copy-jsmediatags",
+    "copy-jsmediatags": "cp node_modules/jsmediatags/dist/jsmediatags.min.js assets/js/app/jsmediatags.min.js",
+    "sass": "sass assets/css/index.scss soundboard.css"
+  },
+  "dependencies": {
+    "jsmediatags": "^3.8.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.1.0",
+    "@babel/core": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "browser-sync": "^2.24.7",
+    "concurrently": "^3.6.1",
+    "onchange": "^4.1.0",
+    "sass": "^1.10.1"
+  },
+  "babel": {
+    "presets": [
+      "@babel/env"
+    ]
+  }
+}

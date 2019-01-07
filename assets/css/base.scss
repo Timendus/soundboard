@@ -1,0 +1,25 @@
+@import 'colours';
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Tahoma,Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  background-color: $background-colour;
+  color: $text-colour;
+}
+
+/* Page magic */
+
+section.page {
+  display: none;
+  max-width: 900px;
+  margin: 0 auto;
+  overflow: auto;
+
+  &.active {
+    display: block;
+  }
+}
