@@ -44,7 +44,7 @@ function () {
             playMode = PlayMode.Disabled;
           }
 
-          html += "\n          <div class='sound ".concat(sound ? 'loaded' : '', "'\n               data-x='").concat(x, "' data-y='").concat(y, "'\n               style='background-color: ").concat(colour, "'>\n            <h1>").concat(title, "</h1>\n            <p>").concat(artist, "</p>\n            ").concat(sound ? "\n              <button class='one-shot   ".concat(playMode == PlayMode.OneShot ? 'active' : '', "'></button>\n              <button class='start-stop ").concat(playMode == PlayMode.StartStop ? 'active' : '', "'></button>\n              <button class='hold       ").concat(playMode == PlayMode.Hold ? 'active' : '', "'></button>\n              <input type=\"text\" length=\"10\" value=\"").concat(colour, "\"/><button class='save-colour'>Save</button>\n            ") : '', "\n          </div>\n        ");
+          html += "\n          <div class='sound ".concat(sound ? 'loaded' : '', "'\n               data-x='").concat(x, "' data-y='").concat(y, "'\n               style='background-color: ").concat(colour, "'>\n            ").concat(sound ? "\n              <div class='progress'></div>\n              <div class='settings'>\n                <button class='show-modes ".concat(playMode == PlayMode.Retrigger ? 'retrigger' : playMode == PlayMode.OneShot ? 'oneshot' : playMode == PlayMode.Gate ? 'gate' : '', " active'></button>\n                <div class='modes'>\n                  <button data-mode='retrigger' class='retrigger ").concat(playMode == PlayMode.Retrigger ? 'active' : '', "'></button>\n                  <button data-mode='oneshot'   class='oneshot   ").concat(playMode == PlayMode.OneShot ? 'active' : '', "'></button>\n                  <button data-mode='gate'      class='gate      ").concat(playMode == PlayMode.Gate ? 'active' : '', "'></button>\n                </div>\n                <button class='show-colours'></button>\n                <div class='colours'>\n                  <button class='colour blue'></button>\n                  <button class='colour red'></button>\n                  <button class='colour purple'></button>\n                  <button class='colour cyan'></button>\n                  <button class='colour yellow'></button>\n                  <button class='colour green'></button>\n                  <button class='colour orange'></button>\n                  <!--<input type=\"text\" length=\"10\" value=\"").concat(colour, "\"/><button class='save-colour'>Save</button>-->\n                </div>\n              </div>\n            ") : '', "\n            <div class='props'>\n              <h1>").concat(title, "</h1>\n              ").concat(sound ? "\n                <p>".concat(artist, "</p>\n              ") : '', "\n            </div>\n          </div>\n        ");
         }
 
         html += "</div>";
@@ -2494,6 +2494,10 @@ window.addEventListener('load', function () {
   var boardRenderer = new BoardRenderer(document.getElementById('board'), board);
   var clickHandler = new ClickHandler();
   var dragDrop = new DragDrop();
+  var rows = Math.round(window.innerHeight / 150);
+  var cols = Math.round(window.innerWidth / 200);
+  board.rows = rows;
+  board.cols = cols;
 
   function _soundFromEvent(e) {
     // Where do we live "in the grid"?
@@ -2523,107 +2527,116 @@ window.addEventListener('load', function () {
     }, 100);
   }
 
-  function pushSound(e) {
+  function trigger(e, redraw, callback) {
     var _soundFromEvent4 = _soundFromEvent(e),
         _soundFromEvent5 = _slicedToArray(_soundFromEvent4, 1),
         sound = _soundFromEvent5[0];
 
-    if (sound) {
-      sound.push();
+    if (!sound) {
+      return;
+    }
+
+    callback(sound);
+
+    if (redraw) {
+      boardRenderer.render();
     }
   }
 
-  function releaseSound(e) {
+  function setColour(e) {
     var _soundFromEvent6 = _soundFromEvent(e),
         _soundFromEvent7 = _slicedToArray(_soundFromEvent6, 1),
         sound = _soundFromEvent7[0];
 
-    if (sound) {
-      sound.release();
-    }
-  }
-
-  function setOneShot(e) {
-    var _soundFromEvent8 = _soundFromEvent(e),
-        _soundFromEvent9 = _slicedToArray(_soundFromEvent8, 1),
-        sound = _soundFromEvent9[0];
-
-    if (sound) {
-      sound.setPlayModeOneShot();
+    if (!sound) {
+      return;
     }
 
-    boardRenderer.render();
-  }
+    var colourValue;
 
-  function setStartStop(e) {
-    var _soundFromEvent10 = _soundFromEvent(e),
-        _soundFromEvent11 = _slicedToArray(_soundFromEvent10, 1),
-        sound = _soundFromEvent11[0];
-
-    if (sound) {
-      sound.setPlayModeStartStop();
+    if (e.target.classList.contains('save-colour')) {
+      colourValue = e.target.closest('.sound').querySelector('input').value;
+    } else {
+      colourValue = window.getComputedStyle(e.target).getPropertyValue('background-color');
     }
 
+    sound.colour = colourValue;
     boardRenderer.render();
   }
 
-  function setHold(e) {
-    var _soundFromEvent12 = _soundFromEvent(e),
-        _soundFromEvent13 = _slicedToArray(_soundFromEvent12, 1),
-        sound = _soundFromEvent13[0];
-
-    if (sound) {
-      sound.setPlayModeHold();
-    }
-
-    boardRenderer.render();
-  }
-
-  function setColour(e) {
-    var _soundFromEvent14 = _soundFromEvent(e),
-        _soundFromEvent15 = _slicedToArray(_soundFromEvent14, 1),
-        sound = _soundFromEvent15[0];
-
-    if (sound) {
-      sound.colour = e.target.closest('.sound').querySelector('input').value;
-    }
-
-    boardRenderer.render();
-  }
-
-  function addRow(e) {
-    board.addRow();
-    boardRenderer.render();
-  }
-
-  function addColumn(e) {
-    board.addColumn();
-    boardRenderer.render();
+  function show(e, className) {
+    e.target.closest('.sound').querySelector(className).classList.add('active');
   } // GO!
 
 
   dragDrop.register('.sound', loadSound);
   clickHandler.register('.sound', {
-    mousedown: pushSound,
-    mouseup: releaseSound
+    mousedown: function mousedown(e) {
+      trigger(e, false, function (s) {
+        return s.push();
+      });
+    },
+    mouseup: function mouseup(e) {
+      trigger(e, false, function (s) {
+        return s.release();
+      });
+    }
+  }); // Sound settings
+
+  clickHandler.register('button[data-mode=retrigger]', {
+    click: function click(e) {
+      trigger(e, true, function (s) {
+        return s.setPlayModeRetrigger();
+      });
+    }
   });
-  clickHandler.register('button.one-shot', {
-    click: setOneShot
+  clickHandler.register('button[data-mode=oneshot]', {
+    click: function click(e) {
+      trigger(e, true, function (s) {
+        return s.setPlayModeOneShot();
+      });
+    }
   });
-  clickHandler.register('button.start-stop', {
-    click: setStartStop
+  clickHandler.register('button[data-mode=gate]', {
+    click: function click(e) {
+      trigger(e, true, function (s) {
+        return s.setPlayModeGate();
+      });
+    }
   });
-  clickHandler.register('button.hold', {
-    click: setHold
+  clickHandler.register('button.colour', {
+    click: setColour
   });
   clickHandler.register('button.save-colour', {
     click: setColour
   });
+  clickHandler.register('button.show-modes', {
+    click: function click(e) {
+      show(e, '.modes');
+    }
+  });
+  clickHandler.register('button.show-colours', {
+    click: function click(e) {
+      show(e, '.colours');
+    }
+  }); // Navigation
+
   clickHandler.register('button#add-row', {
-    click: addRow
+    click: function click() {
+      board.addRow();
+      boardRenderer.render();
+    }
   });
   clickHandler.register('button#add-col', {
-    click: addColumn
+    click: function click() {
+      board.addColumn();
+      boardRenderer.render();
+    }
+  });
+  clickHandler.register('button#settings', {
+    click: function click() {
+      document.querySelector('body').classList.toggle('settings');
+    }
   });
   boardRenderer.render();
 });
@@ -2699,11 +2712,21 @@ function () {
     key: "cols",
     get: function get() {
       return this._cols;
+    },
+    set: function set(cols) {
+      this._cols = cols || this._cols;
+
+      this._makeGrid();
     }
   }, {
     key: "rows",
     get: function get() {
       return this._rows;
+    },
+    set: function set(rows) {
+      this._rows = rows || this._rows;
+
+      this._makeGrid();
     }
   }]);
 
@@ -2778,8 +2801,8 @@ function () {
 var PlayMode = {
   Disabled: 0,
   OneShot: 1,
-  StartStop: 2,
-  Hold: 3
+  Retrigger: 2,
+  Gate: 3
 };
 "use strict";
 
@@ -2796,8 +2819,8 @@ function () {
     _classCallCheck(this, Sound);
 
     this._mp3File = mp3File;
-    this._colour = 'red';
-    this._playMode = PlayMode.OneShot;
+    this._colour = this._randomColour();
+    this._playMode = PlayMode.Retrigger;
     this._player = new Audio();
     this._playerLoaded = false;
   }
@@ -2812,22 +2835,28 @@ function () {
 
         this._playerLoaded = true;
       }
+    }
+  }, {
+    key: "_randomColour",
+    value: function _randomColour() {
+      var colours = ['#26748E', '#D35528', '#934873', '#00B9AE', '#F9C80E', '#48BA66', '#FF9C4C'];
+      return colours[Math.floor(Math.random() * colours.length)];
     } // Setters
 
+  }, {
+    key: "setPlayModeRetrigger",
+    value: function setPlayModeRetrigger() {
+      this._playMode = PlayMode.Retrigger;
+    }
   }, {
     key: "setPlayModeOneShot",
     value: function setPlayModeOneShot() {
       this._playMode = PlayMode.OneShot;
     }
   }, {
-    key: "setPlayModeStartStop",
-    value: function setPlayModeStartStop() {
-      this._playMode = PlayMode.StartStop;
-    }
-  }, {
-    key: "setPlayModeHold",
-    value: function setPlayModeHold() {
-      this._playMode = PlayMode.Hold;
+    key: "setPlayModeGate",
+    value: function setPlayModeGate() {
+      this._playMode = PlayMode.Gate;
     } // Getters
 
   }, {
@@ -2839,12 +2868,16 @@ function () {
       this._player.currentTime = 0;
 
       switch (this._playMode) {
-        case PlayMode.OneShot:
+        case PlayMode.Retrigger:
+          this._player.loop = false;
+
           this._player.play();
 
           break;
 
-        case PlayMode.StartStop:
+        case PlayMode.OneShot:
+          this._player.loop = false;
+
           if (this._player.paused) {
             this._player.play();
           } else {
@@ -2853,7 +2886,7 @@ function () {
 
           break;
 
-        case PlayMode.Hold:
+        case PlayMode.Gate:
           this._player.loop = true;
 
           this._player.play();
@@ -2865,7 +2898,7 @@ function () {
     key: "release",
     value: function release() {
       switch (this._playMode) {
-        case PlayMode.Hold:
+        case PlayMode.Gate:
           this._player.pause();
 
           break;

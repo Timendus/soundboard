@@ -2,8 +2,8 @@ class Sound {
 
   constructor(mp3File) {
     this._mp3File = mp3File;
-    this._colour = 'red';
-    this._playMode = PlayMode.OneShot;
+    this._colour = this._randomColour();
+    this._playMode = PlayMode.Retrigger;
     this._player = new Audio();
     this._playerLoaded = false;
   }
@@ -14,6 +14,19 @@ class Sound {
       this._player.load();
       this._playerLoaded = true;
     }
+  }
+
+  _randomColour() {
+    let colours = [
+      '#26748E',
+      '#D35528',
+      '#934873',
+      '#00B9AE',
+      '#F9C80E',
+      '#48BA66',
+      '#FF9C4C'
+    ];
+    return colours[Math.floor(Math.random() * colours.length)];
   }
 
   // Setters
@@ -27,16 +40,16 @@ class Sound {
     this._colour = colour || this._colour;
   }
 
+  setPlayModeRetrigger() {
+    this._playMode = PlayMode.Retrigger;
+  }
+
   setPlayModeOneShot() {
     this._playMode = PlayMode.OneShot;
   }
 
-  setPlayModeStartStop() {
-    this._playMode = PlayMode.StartStop;
-  }
-
-  setPlayModeHold() {
-    this._playMode = PlayMode.Hold;
+  setPlayModeGate() {
+    this._playMode = PlayMode.Gate;
   }
 
   // Getters
@@ -60,17 +73,19 @@ class Sound {
     this._player.currentTime = 0;
 
     switch(this._playMode) {
-      case PlayMode.OneShot:
+      case PlayMode.Retrigger:
+        this._player.loop = false;
         this._player.play();
         break;
-      case PlayMode.StartStop:
+      case PlayMode.OneShot:
+        this._player.loop = false;
         if ( this._player.paused ) {
           this._player.play();
         } else {
           this._player.pause();
         }
         break;
-      case PlayMode.Hold:
+      case PlayMode.Gate:
         this._player.loop = true;
         this._player.play();
         break;
@@ -79,7 +94,7 @@ class Sound {
 
   release() {
     switch(this._playMode) {
-      case PlayMode.Hold:
+      case PlayMode.Gate:
         this._player.pause();
         break;
     }

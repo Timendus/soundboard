@@ -5,6 +5,12 @@ window.addEventListener('load', function() {
   let clickHandler  = new ClickHandler();
   let dragDrop      = new DragDrop();
 
+  let rows = Math.round(window.innerHeight/150);
+  let cols = Math.round(window.innerWidth/200);
+
+  board.rows = rows;
+  board.cols = cols;
+
   function _soundFromEvent(e) {
     // Where do we live "in the grid"?
     let x = e.target.closest('.sound').getAttribute('data-x');
@@ -31,48 +37,30 @@ window.addEventListener('load', function() {
     }, 100);
   }
 
-  function pushSound(e) {
+  function trigger(e, redraw, callback) {
     let [sound] = _soundFromEvent(e);
-    if ( sound ) { sound.push(); }
-  }
-
-  function releaseSound(e) {
-    let [sound] = _soundFromEvent(e);
-    if ( sound ) { sound.release(); }
-  }
-
-  function setOneShot(e) {
-    let [sound] = _soundFromEvent(e);
-    if ( sound ) { sound.setPlayModeOneShot(); }
-    boardRenderer.render();
-  }
-
-  function setStartStop(e) {
-    let [sound] = _soundFromEvent(e);
-    if ( sound ) { sound.setPlayModeStartStop(); }
-    boardRenderer.render();
-  }
-
-  function setHold(e) {
-    let [sound] = _soundFromEvent(e);
-    if ( sound ) { sound.setPlayModeHold(); }
-    boardRenderer.render();
+    if ( !sound ) { return; }
+    callback(sound);
+    if ( redraw ) {
+      boardRenderer.render();
+    }
   }
 
   function setColour(e) {
     let [sound] = _soundFromEvent(e);
-    if ( sound ) { sound.colour = e.target.closest('.sound').querySelector('input').value; }
+    if ( !sound ) { return; }
+    let colourValue;
+    if ( e.target.classList.contains('save-colour') ) {
+      colourValue = e.target.closest('.sound').querySelector('input').value;
+    } else {
+      colourValue = window.getComputedStyle(e.target).getPropertyValue('background-color');
+    }
+    sound.colour = colourValue;
     boardRenderer.render();
   }
 
-  function addRow(e) {
-    board.addRow();
-    boardRenderer.render();
-  }
-
-  function addColumn(e) {
-    board.addColumn();
-    boardRenderer.render();
+  function show(e, className) {
+    e.target.closest('.sound').querySelector(className).classList.add('active');
   }
 
   // GO!
@@ -80,16 +68,24 @@ window.addEventListener('load', function() {
   dragDrop.register('.sound', loadSound);
 
   clickHandler.register('.sound', {
-    mousedown: pushSound,
-    mouseup:   releaseSound
+    mousedown: (e) => { trigger(e, false, (s) => s.push()) },
+    mouseup:   (e) => { trigger(e, false, (s) => s.release()) }
   });
 
-  clickHandler.register('button.one-shot',    { click: setOneShot   });
-  clickHandler.register('button.start-stop',  { click: setStartStop });
-  clickHandler.register('button.hold',        { click: setHold      });
-  clickHandler.register('button.save-colour', { click: setColour    });
-  clickHandler.register('button#add-row',     { click: addRow       });
-  clickHandler.register('button#add-col',     { click: addColumn    });
+  // Sound settings
+  clickHandler.register('button[data-mode=retrigger]',   { click: (e) => { trigger(e, true, (s) => s.setPlayModeRetrigger()) } });
+  clickHandler.register('button[data-mode=oneshot]',     { click: (e) => { trigger(e, true, (s) => s.setPlayModeOneShot())   } });
+  clickHandler.register('button[data-mode=gate]',        { click: (e) => { trigger(e, true, (s) => s.setPlayModeGate())      } });
+
+  clickHandler.register('button.colour',      { click: setColour });
+  clickHandler.register('button.save-colour', { click: setColour });
+  clickHandler.register('button.show-modes',  { click: (e) => { show(e, '.modes'); } });
+  clickHandler.register('button.show-colours',{ click: (e) => { show(e, '.colours'); } });
+
+  // Navigation
+  clickHandler.register('button#add-row',     { click: () => { board.addRow();    boardRenderer.render(); } });
+  clickHandler.register('button#add-col',     { click: () => { board.addColumn(); boardRenderer.render(); } });
+  clickHandler.register('button#settings',    { click: () => { document.querySelector('body').classList.toggle('settings'); } });
 
   boardRenderer.render();
 

@@ -37,6 +37,16 @@ class Board {
     return this._rows;
   }
 
+  set cols(cols) {
+    this._cols = cols || this._cols;
+    this._makeGrid();
+  }
+
+  set rows(rows) {
+    this._rows = rows || this._rows;
+    this._makeGrid();
+  }
+
   addColumn() {
     this._cols += 1;
     this._makeGrid();

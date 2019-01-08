@@ -3,12 +3,12 @@ nav {
   position: fixed;
   top: 0;
   left: 0;
-  height: 50px;
+  height: 70px;
   width: 100%;
   padding: 10px;
 
-  background-color: $navigation-colour;
   text-align: center;
+  border-bottom: 1px solid gray;
 
   button {
     background-color: $navigation-button-colour;

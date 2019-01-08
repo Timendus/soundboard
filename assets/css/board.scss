@@ -2,11 +2,11 @@
 
 .board {
   position: fixed;
-  top: 50px;
+  top: 70px;
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 2vh 2vw;
+  padding: 0.5vw 0.5vw;
 
   display: flex;
   flex-flow: column nowrap;
@@ -20,7 +20,7 @@
 
     .sound {
       flex: 1 1;
-      margin: 2vh 2vw;
+      margin: 0.5vw 0.5vw;
     }
   }
 
