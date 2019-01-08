@@ -2,6 +2,8 @@
 
 This is a very simple drag and drop soundboard app. It allows you to drag a number of MP3 files into different sound "blocks". Clicking a block will then play the corresponding sound file.
 
+The app [lives here](https://timendus.github.io/soundboard/), and can be installed as a progressive web app through your web browser.
+
 The app will generate a number of blocks that comfortably fit on your screen. If you resize the window this may mess things up, but the app will not automatically add blocks or throw blocks away as you probably don't want that. So resize, then refresh, then start adding files.
 
 ## Settings
