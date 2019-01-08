@@ -1,0 +1,21 @@
+nav {
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 50px;
+  width: 100%;
+  padding: 10px;
+
+  background-color: $navigation-colour;
+  text-align: center;
+
+  button {
+    background-color: $navigation-button-colour;
+    font-size: 1.5em;
+    border: 0;
+    padding: 0.1em 0.3em;
+    margin: 0 0.3em;
+  }
+
+}

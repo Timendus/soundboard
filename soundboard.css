@@ -14,7 +14,7 @@ body {
 
 .board {
   position: fixed;
-  top: 0;
+  top: 50px;
   bottom: 0;
   left: 0;
   right: 0;
@@ -75,6 +75,25 @@ body {
 }
 .sound button.hold:before {
   content: "o";
+}
+
+nav {
+  box-sizing: border-box;
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 50px;
+  width: 100%;
+  padding: 10px;
+  background-color: lightgray;
+  text-align: center;
+}
+nav button {
+  background-color: #9a9ac5;
+  font-size: 1.5em;
+  border: 0;
+  padding: 0.1em 0.3em;
+  margin: 0 0.3em;
 }
 
 /*# sourceMappingURL=soundboard.css.map */

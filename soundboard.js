@@ -2589,6 +2589,16 @@ window.addEventListener('load', function () {
     }
 
     boardRenderer.render();
+  }
+
+  function addRow(e) {
+    board.addRow();
+    boardRenderer.render();
+  }
+
+  function addColumn(e) {
+    board.addColumn();
+    boardRenderer.render();
   } // GO!
 
 
@@ -2608,6 +2618,12 @@ window.addEventListener('load', function () {
   });
   clickHandler.register('button.save-colour', {
     click: setColour
+  });
+  clickHandler.register('button#add-row', {
+    click: addRow
+  });
+  clickHandler.register('button#add-col', {
+    click: addColumn
   });
   boardRenderer.render();
 });
