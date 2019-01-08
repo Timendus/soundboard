@@ -5,17 +5,51 @@ nav {
   left: 0;
   height: 70px;
   width: 100%;
-  padding: 10px;
+  margin: 0;
+  padding: 0;
 
-  text-align: center;
+  text-align: left;
   border-bottom: 1px solid gray;
 
+  a {
+    display: inline-block;
+    height: 70px;
+    line-height: 70px;
+    padding: 0 1vw;
+
+    font-size: 2em;
+    color: white;
+    text-decoration: none;
+  }
+
   button {
-    background-color: $navigation-button-colour;
-    font-size: 1.5em;
+    margin: 0;
+    padding: 0 2em;
+    height: 70px;
+    line-height: 70px;
+    vertical-align: bottom;
+
+    background: none;
     border: 0;
-    padding: 0.1em 0.3em;
-    margin: 0 0.3em;
+    font-size: 1em;
+    color: white;
+    cursor: pointer;
+    outline: none;
+
+    &#add-row, &#add-col {
+      display: none;
+
+      body.settings & {
+        display: initial;
+      }
+    }
+    &#settings {
+      float: right;
+    }
+
+    &:hover {
+      background-color: gray;
+    }
   }
 
 }
