@@ -29,19 +29,22 @@ function () {
 
           var title = void 0,
               artist = void 0,
-              colour = void 0;
+              colour = void 0,
+              playMode = void 0;
 
           if (sound) {
             title = sound.mp3File.getTag('title') || 'Unknown song';
             artist = sound.mp3File.getTag('artist');
             colour = sound.colour;
+            playMode = sound.playMode;
           } else {
             title = 'Drop an mp3 file here';
             artist = '';
             colour = 'gray';
+            playMode = PlayMode.Disabled;
           }
 
-          html += "\n          <div class='sound ".concat(sound ? 'loaded' : '', "'\n               data-x='").concat(x, "' data-y='").concat(y, "'\n               style='background-color: ").concat(colour, "'>\n            <h1>").concat(title, "</h1>\n            <p>").concat(artist, "</p>\n          </div>\n        ");
+          html += "\n          <div class='sound ".concat(sound ? 'loaded' : '', "'\n               data-x='").concat(x, "' data-y='").concat(y, "'\n               style='background-color: ").concat(colour, "'>\n            <h1>").concat(title, "</h1>\n            <p>").concat(artist, "</p>\n            ").concat(sound ? "\n              <button class='one-shot   ".concat(playMode == PlayMode.OneShot ? 'active' : '', "'></button>\n              <button class='start-stop ").concat(playMode == PlayMode.StartStop ? 'active' : '', "'></button>\n              <button class='hold       ").concat(playMode == PlayMode.Hold ? 'active' : '', "'></button>\n              <input type=\"text\" length=\"10\" value=\"").concat(colour, "\"/><button class='save-colour'>Save</button>\n            ") : '', "\n          </div>\n        ");
         }
 
         html += "</div>";
@@ -2494,8 +2497,8 @@ window.addEventListener('load', function () {
 
   function _soundFromEvent(e) {
     // Where do we live "in the grid"?
-    var x = e.target.getAttribute('data-x');
-    var y = e.target.getAttribute('data-y');
+    var x = e.target.closest('.sound').getAttribute('data-x');
+    var y = e.target.closest('.sound').getAttribute('data-y');
     return [board.getSound(x, y), x, y];
   }
 
@@ -2517,7 +2520,7 @@ window.addEventListener('load', function () {
 
     window.setTimeout(function () {
       boardRenderer.render();
-    }, 300);
+    }, 100);
   }
 
   function pushSound(e) {
@@ -2538,6 +2541,54 @@ window.addEventListener('load', function () {
     if (sound) {
       sound.release();
     }
+  }
+
+  function setOneShot(e) {
+    var _soundFromEvent8 = _soundFromEvent(e),
+        _soundFromEvent9 = _slicedToArray(_soundFromEvent8, 1),
+        sound = _soundFromEvent9[0];
+
+    if (sound) {
+      sound.setPlayModeOneShot();
+    }
+
+    boardRenderer.render();
+  }
+
+  function setStartStop(e) {
+    var _soundFromEvent10 = _soundFromEvent(e),
+        _soundFromEvent11 = _slicedToArray(_soundFromEvent10, 1),
+        sound = _soundFromEvent11[0];
+
+    if (sound) {
+      sound.setPlayModeStartStop();
+    }
+
+    boardRenderer.render();
+  }
+
+  function setHold(e) {
+    var _soundFromEvent12 = _soundFromEvent(e),
+        _soundFromEvent13 = _slicedToArray(_soundFromEvent12, 1),
+        sound = _soundFromEvent13[0];
+
+    if (sound) {
+      sound.setPlayModeHold();
+    }
+
+    boardRenderer.render();
+  }
+
+  function setColour(e) {
+    var _soundFromEvent14 = _soundFromEvent(e),
+        _soundFromEvent15 = _slicedToArray(_soundFromEvent14, 1),
+        sound = _soundFromEvent15[0];
+
+    if (sound) {
+      sound.colour = e.target.closest('.sound').querySelector('input').value;
+    }
+
+    boardRenderer.render();
   } // GO!
 
 
@@ -2545,6 +2596,18 @@ window.addEventListener('load', function () {
   clickHandler.register('.sound', {
     mousedown: pushSound,
     mouseup: releaseSound
+  });
+  clickHandler.register('button.one-shot', {
+    click: setOneShot
+  });
+  clickHandler.register('button.start-stop', {
+    click: setStartStop
+  });
+  clickHandler.register('button.hold', {
+    click: setHold
+  });
+  clickHandler.register('button.save-colour', {
+    click: setColour
   });
   boardRenderer.render();
 });
@@ -2697,6 +2760,7 @@ function () {
 "use strict";
 
 var PlayMode = {
+  Disabled: 0,
   OneShot: 1,
   StartStop: 2,
   Hold: 3

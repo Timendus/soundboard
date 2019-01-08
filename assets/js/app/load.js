@@ -7,8 +7,8 @@ window.addEventListener('load', function() {
 
   function _soundFromEvent(e) {
     // Where do we live "in the grid"?
-    let x = e.target.getAttribute('data-x');
-    let y = e.target.getAttribute('data-y');
+    let x = e.target.closest('.sound').getAttribute('data-x');
+    let y = e.target.closest('.sound').getAttribute('data-y');
     return [board.getSound(x, y), x, y];
   }
 
@@ -28,7 +28,7 @@ window.addEventListener('load', function() {
     // Rerender the board (this needs to be improved)
     window.setTimeout(function() {
       boardRenderer.render();
-    }, 300);
+    }, 100);
   }
 
   function pushSound(e) {
@@ -41,6 +41,30 @@ window.addEventListener('load', function() {
     if ( sound ) { sound.release(); }
   }
 
+  function setOneShot(e) {
+    let [sound] = _soundFromEvent(e);
+    if ( sound ) { sound.setPlayModeOneShot(); }
+    boardRenderer.render();
+  }
+
+  function setStartStop(e) {
+    let [sound] = _soundFromEvent(e);
+    if ( sound ) { sound.setPlayModeStartStop(); }
+    boardRenderer.render();
+  }
+
+  function setHold(e) {
+    let [sound] = _soundFromEvent(e);
+    if ( sound ) { sound.setPlayModeHold(); }
+    boardRenderer.render();
+  }
+
+  function setColour(e) {
+    let [sound] = _soundFromEvent(e);
+    if ( sound ) { sound.colour = e.target.closest('.sound').querySelector('input').value; }
+    boardRenderer.render();
+  }
+
   // GO!
 
   dragDrop.register('.sound', loadSound);
@@ -49,6 +73,11 @@ window.addEventListener('load', function() {
     mousedown: pushSound,
     mouseup:   releaseSound
   });
+
+  clickHandler.register('button.one-shot',    { click: setOneShot   });
+  clickHandler.register('button.start-stop',  { click: setStartStop });
+  clickHandler.register('button.hold',        { click: setHold      });
+  clickHandler.register('button.save-colour', { click: setColour    });
 
   boardRenderer.render();
 
