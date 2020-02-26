@@ -2,8 +2,8 @@ window.addEventListener('load', function() {
 
   let board         = new Board();
   let boardRenderer = new BoardRenderer(document.getElementById('board'), board);
-  let clickHandler  = new ClickHandler();
-  let dragDrop      = new DragDrop();
+  let clickHandler  = Click.instance();
+  let dragDrop      = FileTarget.instance();
 
   let rows = Math.round(window.innerHeight/150);
   let cols = Math.round(window.innerWidth/200);
@@ -18,10 +18,9 @@ window.addEventListener('load', function() {
     return [board.getSound(x, y), x, y];
   }
 
-  function loadSound(e) {
+  function loadSound(file, data, e) {
     // Only parse the first file, we expect no more
-    let file = e.dataTransfer.files[0];
-    let mp3File = new Mp3File(file);
+    let mp3File = new Mp3File(file, data);
 
     // Find our sound
     let [sound, x, y] = _soundFromEvent(e);
@@ -65,27 +64,27 @@ window.addEventListener('load', function() {
 
   // GO!
 
-  dragDrop.register('.sound', loadSound);
+  dragDrop.register('.sound:not(.loaded)', loadSound);
 
-  clickHandler.register('.sound', {
+  clickHandler.register('body:not(.settings) .sound', {
     mousedown: (e) => { trigger(e, false, (s) => s.push()) },
     mouseup:   (e) => { trigger(e, false, (s) => s.release()) }
   });
 
   // Sound settings
-  clickHandler.register('button[data-mode=retrigger]',   { click: (e) => { trigger(e, true, (s) => s.setPlayModeRetrigger()) } });
-  clickHandler.register('button[data-mode=oneshot]',     { click: (e) => { trigger(e, true, (s) => s.setPlayModeOneShot())   } });
-  clickHandler.register('button[data-mode=gate]',        { click: (e) => { trigger(e, true, (s) => s.setPlayModeGate())      } });
+  clickHandler.register('button[data-mode=retrigger]', { click: (e) => { trigger(e, true, (s) => s.setPlayModeRetrigger()) } });
+  clickHandler.register('button[data-mode=oneshot]',   { click: (e) => { trigger(e, true, (s) => s.setPlayModeOneShot())   } });
+  clickHandler.register('button[data-mode=gate]',      { click: (e) => { trigger(e, true, (s) => s.setPlayModeGate())      } });
 
-  clickHandler.register('button.colour',      { click: setColour });
-  clickHandler.register('button.save-colour', { click: setColour });
-  clickHandler.register('button.show-modes',  { click: (e) => { show(e, '.modes'); } });
-  clickHandler.register('button.show-colours',{ click: (e) => { show(e, '.colours'); } });
+  clickHandler.register('button.colour',       { click: setColour });
+  clickHandler.register('button.save-colour',  { click: setColour });
+  clickHandler.register('button.show-modes',   { click: (e) => { show(e, '.modes'); } });
+  clickHandler.register('button.show-colours', { click: (e) => { show(e, '.colours'); } });
 
   // Navigation
-  clickHandler.register('button#add-row',     { click: () => { board.addRow();    boardRenderer.render(); } });
-  clickHandler.register('button#add-col',     { click: () => { board.addColumn(); boardRenderer.render(); } });
-  clickHandler.register('button#settings',    { click: () => { document.querySelector('body').classList.toggle('settings'); } });
+  clickHandler.register('button#add-row',  { click: () => { board.addRow();    boardRenderer.render(); } });
+  clickHandler.register('button#add-col',  { click: () => { board.addColumn(); boardRenderer.render(); } });
+  clickHandler.register('button#settings', { click: () => { document.querySelector('body').classList.toggle('settings'); } });
 
   boardRenderer.render();
 
