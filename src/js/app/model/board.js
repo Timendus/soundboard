@@ -1,4 +1,4 @@
-class Board {
+export default class Board {
 
   constructor() {
     this._rows = 3;

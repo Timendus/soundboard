@@ -1,4 +1,6 @@
-class Mp3File {
+import jsmediatags from 'jsmediatags';
+
+export default class Mp3File {
 
   constructor(file, data) {
     if ( !file.type.match(/audio\/(mp3|mpeg)/) ) {
@@ -9,12 +11,10 @@ class Mp3File {
     this._tags = {};
 
     // Parse meta data
-    if ( window.jsmediatags ) {
-      window.jsmediatags.read(file, {
-        onSuccess: this._readTags(this),
-        onError: function(error) { throw new Error(error); }
-      });
-    }
+    jsmediatags.read(file, {
+      onSuccess: this._readTags(this),
+      onError: function(error) { throw new Error(error); }
+    });
   }
 
   _readTags(_this) {
