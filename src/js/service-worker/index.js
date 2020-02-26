@@ -1,10 +1,9 @@
-self.addEventListener('install', function(event) {
-  event.waitUntil(
+self.addEventListener('install', function(evnt) {
+  evnt.waitUntil(
     caches.open('soundboard').then(function(cache) {
       return cache.addAll(
         [
           'index.html',
-          'soundboard.css',
           'soundboard.js'
         ]
       );
@@ -12,11 +11,11 @@ self.addEventListener('install', function(event) {
   );
 });
 
-self.addEventListener('fetch', function(event) {
-  event.respondWith(
+self.addEventListener('fetch', function(evnt) {
+  evnt.respondWith(
     caches.open('soundboard').then(function(cache) {
-      return cache.match(event.request).then(function(response) {
-        return response || fetch(event.request);
+      return cache.match(evnt.request).then(function(response) {
+        return response || fetch(evnt.request);
       });
     })
   );
