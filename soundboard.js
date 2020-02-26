@@ -2492,8 +2492,8 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 window.addEventListener('load', function () {
   var board = new Board();
   var boardRenderer = new BoardRenderer(document.getElementById('board'), board);
-  var clickHandler = new ClickHandler();
-  var dragDrop = new DragDrop();
+  var clickHandler = Click.instance();
+  var dragDrop = FileTarget.instance();
   var rows = Math.round(window.innerHeight / 150);
   var cols = Math.round(window.innerWidth / 200);
   board.rows = rows;
@@ -2506,10 +2506,9 @@ window.addEventListener('load', function () {
     return [board.getSound(x, y), x, y];
   }
 
-  function loadSound(e) {
+  function loadSound(file, data, e) {
     // Only parse the first file, we expect no more
-    var file = e.dataTransfer.files[0];
-    var mp3File = new Mp3File(file); // Find our sound
+    var mp3File = new Mp3File(file, data); // Find our sound
 
     var _soundFromEvent2 = _soundFromEvent(e),
         _soundFromEvent3 = _slicedToArray(_soundFromEvent2, 3),
@@ -2569,8 +2568,8 @@ window.addEventListener('load', function () {
   } // GO!
 
 
-  dragDrop.register('.sound', loadSound);
-  clickHandler.register('.sound', {
+  dragDrop.register('.sound:not(.loaded)', loadSound);
+  clickHandler.register('body:not(.settings) .sound', {
     mousedown: function mousedown(e) {
       trigger(e, false, function (s) {
         return s.push();
@@ -2743,19 +2742,15 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var Mp3File =
 /*#__PURE__*/
 function () {
-  function Mp3File(file) {
+  function Mp3File(file, data) {
     _classCallCheck(this, Mp3File);
 
     if (!file.type.match(/audio\/(mp3|mpeg)/)) {
       throw new Error('Invalid file type');
     }
 
-    this._fileData = null;
-    this._tags = {}; // Read in file
-
-    var reader = new FileReader();
-    reader.addEventListener('load', this._readData(this));
-    reader.readAsDataURL(file); // Parse meta data
+    this._fileData = data;
+    this._tags = {}; // Parse meta data
 
     if (window.jsmediatags) {
       window.jsmediatags.read(file, {
@@ -2768,13 +2763,6 @@ function () {
   }
 
   _createClass(Mp3File, [{
-    key: "_readData",
-    value: function _readData(_this) {
-      return function (data) {
-        _this._fileData = data.target.result;
-      };
-    }
-  }, {
     key: "_readTags",
     value: function _readTags(_this) {
       return function (tag) {
@@ -2932,142 +2920,386 @@ function () {
 }();
 "use strict";
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+!function (t) {
+  var e = {};
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-/**
- * Okay, so why do we need this? Why a whole class to implement our own version
- * of click handling? Am I insane?
- *
- * Well, maybe, but not because of this.
- *
- * This class installs one single click handler on the whole document, and
- * evaluates which callback to call at click time, based on the element that has
- * been clicked. This allows us to swap out and rerender whole sections of the
- * DOM without having to reinstall a bunch of click handlers each time. This
- * nicely decouples the render logic from the click event management logic.
- */
-var ClickHandler =
-/*#__PURE__*/
-function () {
-  function ClickHandler() {
-    var _this = this;
-
-    _classCallCheck(this, ClickHandler);
-
-    this._handlers = {};
-    document.addEventListener('click', function (e) {
-      return _this._callHandler('click', e);
-    });
-    document.addEventListener('mousedown', function (e) {
-      return _this._callHandler('mousedown', e);
-    });
-    document.addEventListener('mouseup', function (e) {
-      return _this._callHandler('mouseup', e);
-    });
+  function n(r) {
+    if (e[r]) return e[r].exports;
+    var o = e[r] = {
+      i: r,
+      l: !1,
+      exports: {}
+    };
+    return t[r].call(o.exports, o, o.exports, n), o.l = !0, o.exports;
   }
 
-  _createClass(ClickHandler, [{
-    key: "register",
-    value: function register(selector) {
-      var handlers = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {
-        click: null,
-        mousedown: null,
-        mouseup: null
-      };
-      this._handlers[selector] = handlers;
+  n.m = t, n.c = e, n.d = function (t, e, r) {
+    n.o(t, e) || Object.defineProperty(t, e, {
+      enumerable: !0,
+      get: r
+    });
+  }, n.r = function (t) {
+    "undefined" != typeof Symbol && Symbol.toStringTag && Object.defineProperty(t, Symbol.toStringTag, {
+      value: "Module"
+    }), Object.defineProperty(t, "__esModule", {
+      value: !0
+    });
+  }, n.t = function (t, e) {
+    if (1 & e && (t = n(t)), 8 & e) return t;
+    if (4 & e && "object" == _typeof(t) && t && t.__esModule) return t;
+    var r = Object.create(null);
+    if (n.r(r), Object.defineProperty(r, "default", {
+      enumerable: !0,
+      value: t
+    }), 2 & e && "string" != typeof t) for (var o in t) {
+      n.d(r, o, function (e) {
+        return t[e];
+      }.bind(null, o));
     }
-  }, {
-    key: "_callHandler",
-    value: function _callHandler(type, e) {
-      var _this2 = this;
+    return r;
+  }, n.n = function (t) {
+    var e = t && t.__esModule ? function () {
+      return t.default;
+    } : function () {
+      return t;
+    };
+    return n.d(e, "a", e), e;
+  }, n.o = function (t, e) {
+    return Object.prototype.hasOwnProperty.call(t, e);
+  }, n.p = "", n(n.s = 4);
+}([function (t, e, n) {
+  "use strict";
 
-      Object.keys(this._handlers).forEach(function (selector) {
-        if (e.target.matches(selector)) {
-          var handler = _this2._handlers[selector][type];
-
-          if (handler) {
-            handler(e);
-          }
-        }
-      });
+  function r(t, e) {
+    for (var n = 0; n < e.length; n++) {
+      var r = e[n];
+      r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r);
     }
-  }]);
-
-  return ClickHandler;
-}();
-"use strict";
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
-
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
-
-/**
- * Fancy thing for file drag an drop, kinda similar to click-handler.js
- */
-var DragDrop =
-/*#__PURE__*/
-function () {
-  function DragDrop() {
-    var _this = this;
-
-    _classCallCheck(this, DragDrop);
-
-    this._handlers = {};
-    document.addEventListener('dragover', function (e) {
-      return _this._dragOver(e);
-    });
-    document.addEventListener('dragleave', function (e) {
-      return _this._dragLeave(e);
-    });
-    document.addEventListener('drop', function (e) {
-      return _this._drop(e);
-    });
   }
 
-  _createClass(DragDrop, [{
-    key: "register",
-    value: function register(selector, callback) {
-      this._handlers[selector] = callback;
-    }
-  }, {
-    key: "_dragOver",
-    value: function _dragOver(e) {
-      e.stopPropagation();
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'copy';
-      e.target.classList.add('dragging');
-    }
-  }, {
-    key: "_dragLeave",
-    value: function _dragLeave(e) {
-      e.stopPropagation();
-      e.preventDefault();
-      e.target.classList.remove('dragging');
-    }
-  }, {
-    key: "_drop",
-    value: function _drop(e) {
-      var _this2 = this;
+  n.r(e);
 
-      e.stopPropagation();
-      e.preventDefault();
-      e.target.classList.remove('dragging');
-      Object.keys(this._handlers).forEach(function (selector) {
-        if (e.target.matches(selector)) {
-          _this2._handlers[selector](e);
-        }
+  var o = function () {
+    function t() {
+      var e = this;
+      !function (t, e) {
+        if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function");
+      }(this, t), this._handlers = {}, document.addEventListener("click", function (t) {
+        return e._callHandler("click", t);
+      }), document.addEventListener("mousedown", function (t) {
+        return e._callHandler("mousedown", t);
+      }), document.addEventListener("mouseup", function (t) {
+        return e._callHandler("mouseup", t);
       });
     }
-  }]);
 
-  return DragDrop;
-}();
+    var e, n, o;
+    return e = t, (n = [{
+      key: "register",
+      value: function value(t) {
+        var e = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {
+          click: null,
+          mousedown: null,
+          mouseup: null
+        };
+        "function" == typeof e && (e = {
+          click: e
+        }), this._handlers[t] = this._handlers[t] || [], this._handlers[t].push(e);
+      }
+    }, {
+      key: "_callHandler",
+      value: function value(t, e) {
+        var n = this;
+        Object.keys(this._handlers).forEach(function (r) {
+          null !== e.target.closest(r) && n._handlers[r].map(function (e) {
+            return e[t];
+          }).forEach(function (t) {
+            "function" == typeof t && t(e, r);
+          });
+        });
+      }
+    }]) && r(e.prototype, n), o && r(e, o), t;
+  }();
+
+  o.instance = function () {
+    return o._instance ? o._instance : o._instance = new o();
+  }, e.default = o;
+}, function (t, e, n) {
+  "use strict";
+
+  n.r(e);
+  var r = n(0);
+
+  function o(t, e) {
+    for (var n = 0; n < e.length; n++) {
+      var r = e[n];
+      r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r);
+    }
+  }
+
+  var a = function () {
+    function t() {
+      var e = this,
+          n = arguments.length > 0 && void 0 !== arguments[0] ? arguments[0] : "dragging";
+      !function (t, e) {
+        if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function");
+      }(this, t), this._dragClass = n, this._handlers = {}, document.addEventListener("dragover", function (t) {
+        return e._dragOver(t);
+      }), document.addEventListener("dragleave", function (t) {
+        return e._dragLeave(t);
+      }), document.addEventListener("drop", function (t) {
+        return e._drop(t);
+      });
+    }
+
+    var e, n, a;
+    return e = t, (n = [{
+      key: "register",
+      value: function value(t, e) {
+        var n = this;
+        this._handlers[t] = e, r.default.instance().register(t, function (t, e) {
+          return n._openFileDialog(t, e);
+        });
+      }
+    }, {
+      key: "_dragOver",
+      value: function value(t) {
+        this._isDropTarget(t.target) && (t.stopPropagation(), t.preventDefault(), t.dataTransfer.dropEffect = "copy", t.target.classList.add(this._dragClass));
+      }
+    }, {
+      key: "_dragLeave",
+      value: function value(t) {
+        this._isDropTarget(t.target) && (t.stopPropagation(), t.preventDefault(), t.target.classList.remove(this._dragClass));
+      }
+    }, {
+      key: "_drop",
+      value: function value(t) {
+        var e = this._isDropTarget(t.target);
+
+        e && (t.stopPropagation(), t.preventDefault(), t.target.classList.remove(this._dragClass), this._handleFile(e, t, t.dataTransfer.files[0]));
+      }
+    }, {
+      key: "_isDropTarget",
+      value: function value(t) {
+        return Object.keys(this._handlers).find(function (e) {
+          if (t.closest(e)) return e;
+        }) || !1;
+      }
+    }, {
+      key: "_openFileDialog",
+      value: function value(t, e) {
+        var n = this,
+            r = document.createElement("input");
+        r.type = "file", r.addEventListener("change", function (r) {
+          return n._handleFile(e, t, r.target.files[0]);
+        }), r.click();
+      }
+    }, {
+      key: "_handleFile",
+      value: function value(t, e, n) {
+        var r = this;
+
+        this._readFile(n).then(function (o) {
+          return r._handlers[t](n, o, e);
+        });
+      }
+    }, {
+      key: "_readFile",
+      value: function value(t) {
+        return new Promise(function (e, n) {
+          var r = new FileReader();
+          r.addEventListener("load", function (t) {
+            return e(t.target.result);
+          }), r.readAsDataURL(t);
+        });
+      }
+    }]) && o(e.prototype, n), a && o(e, a), t;
+  }();
+
+  a.instance = function () {
+    return a._instance ? a._instance : a._instance = new a();
+  }, e.default = a;
+}, function (t, e, n) {
+  "use strict";
+
+  n.r(e), n.d(e, "default", function () {
+    return a;
+  });
+  var r = n(0);
+
+  function o(t, e) {
+    for (var n = 0; n < e.length; n++) {
+      var r = e[n];
+      r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r);
+    }
+  }
+
+  var a = function () {
+    function t() {
+      var e = this;
+      !function (t, e) {
+        if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function");
+      }(this, t), this._routes = {}, r.default.instance().register("a[href]", function (t) {
+        return e._handleClick(t);
+      }), window.addEventListener("hashchange", function (t) {
+        return e._handleNavigationEvent(t);
+      }), window.addEventListener("load", function (t) {
+        return e._handleNavigationEvent(t);
+      });
+    }
+
+    var e, n, a;
+    return e = t, (n = [{
+      key: "addRoute",
+      value: function value(t, e) {
+        this._routes[t] = e;
+      }
+    }, {
+      key: "addRoutes",
+      value: function value(t) {
+        var e = this,
+            n = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : null;
+        Array.isArray(t) ? t.forEach(function (t) {
+          return e.addRoute(t, n);
+        }) : Object.assign(this._routes, t);
+      }
+    }, {
+      key: "_handleClick",
+      value: function value(t) {
+        var e = t.target.getAttribute("href");
+        this._validHash(e) && (window.location.hash = e, t.preventDefault());
+      }
+    }, {
+      key: "_handleNavigationEvent",
+      value: function value(t) {
+        var e = window.location.hash;
+
+        if (this._validHash(e)) {
+          e = e.substr(1);
+          var n = this._routes[e];
+          n && n(e, t);
+        }
+      }
+    }, {
+      key: "_validHash",
+      value: function value(t) {
+        return !!t && "#" != !t.substr(0, 1) && !!Object.keys(this._routes).includes(t.substr(1));
+      }
+    }]) && o(e.prototype, n), a && o(e, a), t;
+  }();
+}, function (t, e, n) {
+  "use strict";
+
+  n.r(e), n.d(e, "default", function () {
+    return i;
+  });
+  var r = n(0);
+
+  function o(t) {
+    return function (t) {
+      if (Array.isArray(t)) {
+        for (var e = 0, n = new Array(t.length); e < t.length; e++) {
+          n[e] = t[e];
+        }
+
+        return n;
+      }
+    }(t) || function (t) {
+      if (Symbol.iterator in Object(t) || "[object Arguments]" === Object.prototype.toString.call(t)) return Array.from(t);
+    }(t) || function () {
+      throw new TypeError("Invalid attempt to spread non-iterable instance");
+    }();
+  }
+
+  function a(t, e) {
+    for (var n = 0; n < e.length; n++) {
+      var r = e[n];
+      r.enumerable = r.enumerable || !1, r.configurable = !0, "value" in r && (r.writable = !0), Object.defineProperty(t, r.key, r);
+    }
+  }
+
+  var i = function () {
+    function t(e) {
+      var n = this,
+          o = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {};
+      !function (t, e) {
+        if (!(t instanceof e)) throw new TypeError("Cannot call a class as a function");
+      }(this, t), this._scope = e, this._options = this._normalizeOptions(o), r.default.instance().register("".concat(e, " [").concat(this._options.open, "], ").concat(e, " [").concat(this._options.close, "], ").concat(e, " [").concat(this._options.toggle, "]"), function (t) {
+        return n._handleClick(t);
+      });
+    }
+
+    var e, n, i;
+    return e = t, (n = [{
+      key: "_normalizeOptions",
+      value: function value(t) {
+        return Object.assign({
+          class: "active",
+          open: "data-open",
+          close: "data-close",
+          toggle: "data-toggle",
+          group: "data-group",
+          timer: "data-timer",
+          follower: "data-follower"
+        }, t);
+      }
+    }, {
+      key: "_handleClick",
+      value: function value(t) {
+        var e = t.target.closest("[".concat(this._options.open, "], [").concat(this._options.close, "], [").concat(this._options.toggle, "]")),
+            n = e.getAttribute(this._options.close),
+            r = e.getAttribute(this._options.open),
+            a = e.getAttribute(this._options.toggle),
+            i = n ? document.querySelectorAll("".concat(this._scope, " ").concat(n)) : [],
+            c = r ? document.querySelectorAll("".concat(this._scope, " ").concat(r)) : [];
+        i = [].concat(o(i), o(a ? document.querySelectorAll("".concat(this._scope, " ").concat(a, ".").concat(this._options.class)) : [])), c = [].concat(o(c), o(a ? document.querySelectorAll("".concat(this._scope, " ").concat(a, ":not(.").concat(this._options.class, ")")) : [])), this._close(i), this._open(c), t.preventDefault(), t.stopPropagation();
+      }
+    }, {
+      key: "_close",
+      value: function value(t) {
+        var e = this;
+        t.forEach(function (t) {
+          t.classList.remove(e._options.class), e._close(e._followers(t));
+        });
+      }
+    }, {
+      key: "_open",
+      value: function value(t) {
+        var e = this;
+        t.forEach(function (t) {
+          e._close(e._group(t)), t.classList.add(e._options.class), e._open(e._followers(t));
+          var n = t.getAttribute(e._options.timer);
+          n && window.setTimeout(function () {
+            return e._close([t]);
+          }, n);
+        });
+      }
+    }, {
+      key: "_group",
+      value: function value(t) {
+        var e = t.getAttribute(this._options.group);
+        return e ? o(document.querySelectorAll("".concat(this._scope, " [").concat(this._options.group, "=").concat(e, "]"))) : [];
+      }
+    }, {
+      key: "_followers",
+      value: function value(t) {
+        var e = t.getAttribute(this._options.follower);
+        return e ? o(document.querySelectorAll("".concat(this._scope, " ").concat(e))) : [];
+      }
+    }]) && a(e.prototype, n), i && a(e, i), t;
+  }();
+}, function (t, e, n) {
+  "use strict";
+
+  n.r(e);
+  var r = n(0),
+      o = n(1),
+      a = n(2),
+      i = n(3);
+  window.Click = r.default, window.FileTarget = o.default, window.Router = a.default, window.Quicken = i.default;
+}]);
 "use strict";
 
 // Install Service worker
