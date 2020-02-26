@@ -1,4 +1,4 @@
-const PlayMode = {
+export default {
   Disabled:  0,
   OneShot:   1,
   Retrigger: 2,

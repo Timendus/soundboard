@@ -1,4 +1,6 @@
-class Sound {
+import PlayMode from './play-mode';
+
+export default class Sound {
 
   constructor(mp3File) {
     this._mp3File = mp3File;

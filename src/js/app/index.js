@@ -1,9 +1,19 @@
+require('../../css/index.scss');
+
+import Board         from './model/board';
+import Sound         from './model/sound';
+import Mp3File       from './model/mp3file';
+import BoardRenderer from './board-renderer';
+import Thimbleful    from 'thimbleful';
+
 window.addEventListener('load', function() {
+
+  require('./util/pwa');
 
   let board         = new Board();
   let boardRenderer = new BoardRenderer(document.getElementById('board'), board);
-  let clickHandler  = Click.instance();
-  let dragDrop      = FileTarget.instance();
+  let clickHandler  = Thimbleful.Click.instance();
+  let dragDrop      = Thimbleful.FileTarget.instance();
 
   let rows = Math.round(window.innerHeight/150);
   let cols = Math.round(window.innerWidth/200);

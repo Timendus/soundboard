@@ -1,4 +1,6 @@
-class BoardRenderer {
+import PlayMode from './model/play-mode';
+
+export default class BoardRenderer {
 
   constructor(element, board) {
     this._element = element;
