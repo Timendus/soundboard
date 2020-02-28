@@ -7,6 +7,7 @@ export default class Mp3File {
       throw new Error('Invalid file type');
     }
 
+    this._file = file;
     this._fileData = data;
     this._tags = {};
 
@@ -30,6 +31,9 @@ export default class Mp3File {
   }
 
   getTag(tag) {
+    if ( tag == 'title' )
+      return this._tags[tag] || this._file.name;
+
     return this._tags[tag] || "";
   }
 
