@@ -3,6 +3,7 @@ require('../../css/index.scss');
 import Board         from './model/board';
 import Sound         from './model/sound';
 import Mp3File       from './model/mp3file';
+import Midi          from './util/midi';
 import BoardRenderer from './board-renderer';
 import Thimbleful    from 'thimbleful';
 
@@ -14,6 +15,7 @@ window.addEventListener('load', function() {
   let boardRenderer = new BoardRenderer(document.getElementById('board'), board);
   let clickHandler  = Thimbleful.Click.instance();
   let dragDrop      = Thimbleful.FileTarget.instance();
+  let midi          = new Midi();
 
   let rows = Math.round(window.innerHeight/150);
   let cols = Math.round(window.innerWidth/200);
@@ -79,6 +81,11 @@ window.addEventListener('load', function() {
   clickHandler.register('body:not(.settings) .sound', {
     mousedown: (e) => { trigger(e, false, (s) => s.push()) },
     mouseup:   (e) => { trigger(e, false, (s) => s.release()) }
+  });
+
+  midi.register({
+    keyDown: (e) => { console.log(e) },
+    keyUp:   (e) => { console.log(e) }
   });
 
   // Sound settings
