@@ -11,7 +11,7 @@
   },
   "devDependencies": {
     "css-loader": "^3.4.2",
-    "jsmediatags": "^3.9.3",
+    "music-metadata-browser": "^2.0.4",
     "node-sass": "^4.13.1",
     "sass": "^1.26.1",
     "sass-loader": "^8.0.2",
