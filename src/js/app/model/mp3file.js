@@ -1,9 +1,9 @@
-import jsmediatags from 'jsmediatags';
+import * as mm from 'music-metadata-browser';
 
 export default class Mp3File {
 
   constructor(file, data) {
-    if ( !file.type.match(/audio\/(mp3|mpeg)/) ) {
+    if ( !file.type.match(/^audio/) ) {
       throw new Error('Invalid file type');
     }
 
@@ -12,16 +12,9 @@ export default class Mp3File {
     this._tags = {};
 
     // Parse meta data
-    jsmediatags.read(file, {
-      onSuccess: this._readTags(this),
-      onError: function(error) { throw new Error(error); }
+    mm.parseBlob(file).then(metadata => {
+      this._tags = metadata.common;
     });
-  }
-
-  _readTags(_this) {
-    return function(tag) {
-      _this._tags = tag.tags;
-    }
   }
 
   // Public methods
@@ -31,7 +24,7 @@ export default class Mp3File {
   }
 
   getTag(tag) {
-    if ( tag == 'title' )
+    if ( tag === 'title' )
       return this._tags[tag] || this._file.name;
 
     return this._tags[tag] || "";
