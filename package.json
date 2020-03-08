@@ -5,6 +5,7 @@
     "Tim Franssen"
   ],
   "repository": "Timendus/soundboard",
+  "license": "GPL-3.0-or-later",
   "scripts": {
     "start": "webpack-dev-server",
     "build": "webpack --mode production"
