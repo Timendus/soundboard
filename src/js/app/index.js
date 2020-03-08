@@ -4,6 +4,7 @@ import Board         from './model/board';
 import Sound         from './model/sound';
 import Mp3File       from './model/mp3file';
 import Midi          from './util/midi';
+import Keyboard      from './util/keyboard';
 import BoardRenderer from './board-renderer';
 import Thimbleful    from 'thimbleful';
 
@@ -16,6 +17,7 @@ window.addEventListener('load', function() {
   let clickHandler  = Thimbleful.Click.instance();
   let dragDrop      = Thimbleful.FileTarget.instance();
   let midi          = new Midi();
+  let keyboard      = new Keyboard();
 
   let rows = Math.round(window.innerHeight/150);
   let cols = Math.round(window.innerWidth/200);
@@ -84,6 +86,11 @@ window.addEventListener('load', function() {
   });
 
   midi.register({
+    keyDown: (e) => { console.log(e) },
+    keyUp:   (e) => { console.log(e) }
+  });
+
+  keyboard.register({
     keyDown: (e) => { console.log(e) },
     keyUp:   (e) => { console.log(e) }
   });

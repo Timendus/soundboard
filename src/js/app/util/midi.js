@@ -31,32 +31,8 @@ export default class Midi {
 
   getNextKeyPress() {
     return new Promise((resolve, reject) => {
-      const keyDown  = this._keyDown;
-      const keyUp    = this._keyUp;
-      const pressed  = false;
-      const released = false;
-      const timeout  = setTimeout(() => {
-        this._keyDown = keyDown;
-        this._keyUp   = keyUp;
-        reject("Waiting too long for a key press");
-      }, 5000);
-
-      function checkDone() {
-        if ( !pressed || !released ) return;
-        clearTimeout(timeout);
-        this._keyDown = keyDown;
-        this._keyUp   = keyUp;
-        resolve(pressed)
-      }
-
-      this._keyDown = note => {
-        pressed = note;
-        checkDone();
-      }
-      this._keyUp = note => {
-        released = note;
-        checkDone();
-      }
+      this._resolve = resolve;
+      this._timeout = setTimeout(() => reject("Waiting too long for a key press"), 5000);
     });
   }
 
@@ -68,17 +44,23 @@ export default class Midi {
       const velocity = (midiEvent.data.length > 2) ? midiEvent.data[2] : 0;
 
       if ( command === 144 && velocity > 0 )
-        this._keyDown(note);
+        this._keyDownHandler(note);
       if ( command === 144 && velocity < 0 || command === 128 )
-        this._keyUp(note);
+        this._keyUpHandler(note);
     })
   }
 
-  _keyDown(note) {
+  _keyDownHandler(note) {
+    if ( this._resolve ) {
+      clearTimeout(this._timeout);
+      this._resolve(note);
+      return;
+    }
+
     if ( this._keyDown ) this._keyDown(note);
   }
 
-  _keyUp(note) {
+  _keyUpHandler(note) {
     if ( this._keyUp ) this._keyUp(note);
   }
 
