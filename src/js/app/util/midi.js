@@ -36,6 +36,11 @@ export default class Midi {
     });
   }
 
+  cancelGetKeyPress() {
+    clearTimeout(this._timeout);
+    this._resolve = null;
+  }
+
   _connectDevice(device) {
     console.log("🎹 Connecting device", device);
     device.addEventListener('midimessage', midiEvent => {
@@ -47,14 +52,13 @@ export default class Midi {
         this._keyDownHandler(note);
       if ( command === 144 && velocity < 0 || command === 128 )
         this._keyUpHandler(note);
-    })
+    });
   }
 
   _keyDownHandler(note) {
     if ( this._resolve ) {
-      clearTimeout(this._timeout);
       this._resolve(note);
-      return;
+      return this.cancelGetKeyPress();
     }
 
     if ( this._keyDown ) this._keyDown(note);

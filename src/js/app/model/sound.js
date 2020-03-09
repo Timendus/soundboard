@@ -42,6 +42,10 @@ export default class Sound {
     this._colour = colour || this._colour;
   }
 
+  set key(key) {
+    this._key = key || this._key;
+  }
+
   setPlayModeRetrigger() {
     this._playMode = PlayMode.Retrigger;
   }
@@ -66,6 +70,10 @@ export default class Sound {
 
   get playMode() {
     return this._playMode;
+  }
+
+  get key() {
+    return this._key;
   }
 
   // Playback
