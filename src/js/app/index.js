@@ -34,7 +34,7 @@ window.addEventListener('load', function() {
 
   function loadSound(file, data, e) {
     // Only parse the first file, we expect no more
-    let mp3File = new Mp3File(file, data);
+    const mp3File = new Mp3File(file, data);
 
     // Find our sound
     let [sound, x, y] = _soundFromEvent(e);
@@ -64,7 +64,7 @@ window.addEventListener('load', function() {
   }
 
   function setColour(e) {
-    let [sound] = _soundFromEvent(e);
+    const [sound] = _soundFromEvent(e);
     if ( !sound ) { return; }
     let colourValue;
     if ( e.target.classList.contains('save-colour') ) {
@@ -99,8 +99,8 @@ window.addEventListener('load', function() {
   dragDrop.register('.sound:not(.loaded)', loadSound);
 
   clickHandler.register('body:not(.settings) .sound', {
-    mousedown: (e) => { trigger(e, false, (s) => s.push()) },
-    mouseup:   (e) => { trigger(e, false, (s) => s.release()) }
+    mousedown: e => trigger(e, false, (s) => s.push()),
+    mouseup:   e => trigger(e, false, (s) => s.release())
   });
 
   midi.register({
@@ -114,14 +114,15 @@ window.addEventListener('load', function() {
   });
 
   // Sound settings
-  clickHandler.register('button[data-mode=retrigger]', { click: (e) => { trigger(e, true, (s) => s.setPlayModeRetrigger()) } });
-  clickHandler.register('button[data-mode=oneshot]',   { click: (e) => { trigger(e, true, (s) => s.setPlayModeOneShot())   } });
-  clickHandler.register('button[data-mode=gate]',      { click: (e) => { trigger(e, true, (s) => s.setPlayModeGate())      } });
+  clickHandler.register('button[data-mode=retrigger]', { click: e => { trigger(e, true, s => s.setPlayModeRetrigger()); } });
+  clickHandler.register('button[data-mode=oneshot]',   { click: e => { trigger(e, true, s => s.setPlayModeOneShot());   } });
+  clickHandler.register('button[data-mode=gate]',      { click: e => { trigger(e, true, s => s.setPlayModeGate());      } });
 
   clickHandler.register('button.colour',       { click: setColour });
   clickHandler.register('button.save-colour',  { click: setColour });
-  clickHandler.register('button.show-modes',   { click: (e) => { show(e, '.modes'); } });
-  clickHandler.register('button.show-colours', { click: (e) => { show(e, '.colours'); } });
+  clickHandler.register('button.show-modes',   { click: e => show(e, '.modes') });
+  clickHandler.register('button.show-colours', { click: e => show(e, '.colours') });
+  clickHandler.register('button.assign-key',   { click: e => captureKey(e) });
 
   // Navigation
   clickHandler.register('button#add-row',  { click: () => { board.addRow();    boardRenderer.render(); } });
