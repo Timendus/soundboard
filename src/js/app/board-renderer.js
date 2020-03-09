@@ -32,7 +32,7 @@ export default class BoardRenderer {
                data-x='${x}' data-y='${y}'
                style='background-color: ${colour}'>
             ${sound ? `
-              <div class='progress'></div>
+              <div class='progress'><div class='bar'></div></div>
               <div class='settings'>
                 <button class='show-modes ${ playMode == PlayMode.Retrigger ? 'retrigger' :
                                              playMode == PlayMode.OneShot   ? 'oneshot'   :

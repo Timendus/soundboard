@@ -42,20 +42,14 @@
       display: none;
     }
 
-    &:before, &:after {
-      content: ' ';
+    .bar {
       position: absolute;
       top: 45%;
       left: 25%;
       height: 2px;
       width: 50%;
       padding: 0;
-      background-color: $background-colour;
-    }
-
-    &:after {
-      background-color: white;
-      width: 50%; // This should be animated from 0% to 50%
+      background: white;
     }
   }
 

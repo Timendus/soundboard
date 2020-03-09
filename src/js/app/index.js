@@ -27,8 +27,9 @@ window.addEventListener('load', function() {
 
   function _soundFromEvent(e) {
     // Where do we live "in the grid"?
-    let x = e.target.closest('.sound').getAttribute('data-x');
-    let y = e.target.closest('.sound').getAttribute('data-y');
+    const soundElm = e.target.closest('.sound');
+    const x = soundElm.getAttribute('data-x');
+    const y = soundElm.getAttribute('data-y');
     return [board.getSound(x, y), x, y];
   }
 
@@ -42,6 +43,8 @@ window.addEventListener('load', function() {
 
     // Update that position
     sound.mp3File = mp3File;
+    sound.x = x;
+    sound.y = y;
     board.placeSound(x, y, sound);
 
     // Rerender the board (this needs to be improved)
