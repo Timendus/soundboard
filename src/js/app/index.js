@@ -51,12 +51,16 @@ window.addEventListener('load', function() {
   }
 
   function trigger(e, redraw, callback) {
-    let [sound] = _soundFromEvent(e);
-    if ( !sound ) { return; }
+    const [sound] = _soundFromEvent(e);
+    if ( !sound ) return;
     callback(sound);
-    if ( redraw ) {
-      boardRenderer.render();
-    }
+    if ( redraw ) boardRenderer.render();
+  }
+
+  function keyTrigger(key, callback) {
+    const sound = board.getByKey(key);
+    if ( !sound ) return;
+    callback(sound);
   }
 
   function setColour(e) {
@@ -76,6 +80,20 @@ window.addEventListener('load', function() {
     e.target.closest('.sound').querySelector(className).classList.add('active');
   }
 
+  function captureKey(e) {
+    show(e, '.keys');
+    Promise.race([keyboard.getNextKeyPress(), midi.getNextKeyPress()])
+      .then(key => {
+        let [sound] = _soundFromEvent(e);
+        sound.key = key;
+      })
+      .finally(() => {
+        keyboard.cancelGetKeyPress();
+        midi.cancelGetKeyPress();
+        boardRenderer.render();
+      });
+  }
+
   // GO!
 
   dragDrop.register('.sound:not(.loaded)', loadSound);
@@ -86,13 +104,13 @@ window.addEventListener('load', function() {
   });
 
   midi.register({
-    keyDown: (e) => { console.log(e) },
-    keyUp:   (e) => { console.log(e) }
+    keyDown: key => keyTrigger(key, s => s.push()),
+    keyUp:   key => keyTrigger(key, s => s.release())
   });
 
   keyboard.register({
-    keyDown: (e) => { console.log(e) },
-    keyUp:   (e) => { console.log(e) }
+    keyDown: key => keyTrigger(key, s => s.push()),
+    keyUp:   key => keyTrigger(key, s => s.release())
   });
 
   // Sound settings
