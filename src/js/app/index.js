@@ -3,6 +3,8 @@ require('../../css/index.scss');
 import Board         from './model/board';
 import Sound         from './model/sound';
 import Mp3File       from './model/mp3file';
+import Midi          from './util/midi';
+import Keyboard      from './util/keyboard';
 import BoardRenderer from './board-renderer';
 import Thimbleful    from 'thimbleful';
 
@@ -14,6 +16,8 @@ window.addEventListener('load', function() {
   let boardRenderer = new BoardRenderer(document.getElementById('board'), board);
   let clickHandler  = Thimbleful.Click.instance();
   let dragDrop      = Thimbleful.FileTarget.instance();
+  let midi          = new Midi();
+  let keyboard      = new Keyboard();
 
   let rows = Math.round(window.innerHeight/150);
   let cols = Math.round(window.innerWidth/200);
@@ -30,7 +34,7 @@ window.addEventListener('load', function() {
 
   function loadSound(file, data, e) {
     // Only parse the first file, we expect no more
-    let mp3File = new Mp3File(file, data);
+    const mp3File = new Mp3File(file, data);
 
     // Find our sound
     let [sound, x, y] = _soundFromEvent(e);
@@ -47,16 +51,20 @@ window.addEventListener('load', function() {
   }
 
   function trigger(e, redraw, callback) {
-    let [sound] = _soundFromEvent(e);
-    if ( !sound ) { return; }
+    const [sound] = _soundFromEvent(e);
+    if ( !sound ) return;
     callback(sound);
-    if ( redraw ) {
-      boardRenderer.render();
-    }
+    if ( redraw ) boardRenderer.render();
+  }
+
+  function keyTrigger(key, callback) {
+    const sound = board.getByKey(key);
+    if ( !sound ) return;
+    callback(sound);
   }
 
   function setColour(e) {
-    let [sound] = _soundFromEvent(e);
+    const [sound] = _soundFromEvent(e);
     if ( !sound ) { return; }
     let colourValue;
     if ( e.target.classList.contains('save-colour') ) {
@@ -72,24 +80,49 @@ window.addEventListener('load', function() {
     e.target.closest('.sound').querySelector(className).classList.add('active');
   }
 
+  function captureKey(e) {
+    show(e, '.keys');
+    Promise.race([keyboard.getNextKeyPress(), midi.getNextKeyPress()])
+      .then(key => {
+        let [sound] = _soundFromEvent(e);
+        sound.key = key;
+      })
+      .finally(() => {
+        keyboard.cancelGetKeyPress();
+        midi.cancelGetKeyPress();
+        boardRenderer.render();
+      });
+  }
+
   // GO!
 
   dragDrop.register('.sound:not(.loaded)', loadSound);
 
   clickHandler.register('body:not(.settings) .sound', {
-    mousedown: (e) => { trigger(e, false, (s) => s.push()) },
-    mouseup:   (e) => { trigger(e, false, (s) => s.release()) }
+    mousedown: e => trigger(e, false, (s) => s.push()),
+    mouseup:   e => trigger(e, false, (s) => s.release())
+  });
+
+  midi.register({
+    keyDown: key => keyTrigger(key, s => s.push()),
+    keyUp:   key => keyTrigger(key, s => s.release())
+  });
+
+  keyboard.register({
+    keyDown: key => keyTrigger(key, s => s.push()),
+    keyUp:   key => keyTrigger(key, s => s.release())
   });
 
   // Sound settings
-  clickHandler.register('button[data-mode=retrigger]', { click: (e) => { trigger(e, true, (s) => s.setPlayModeRetrigger()) } });
-  clickHandler.register('button[data-mode=oneshot]',   { click: (e) => { trigger(e, true, (s) => s.setPlayModeOneShot())   } });
-  clickHandler.register('button[data-mode=gate]',      { click: (e) => { trigger(e, true, (s) => s.setPlayModeGate())      } });
+  clickHandler.register('button[data-mode=retrigger]', { click: e => { trigger(e, true, s => s.setPlayModeRetrigger()); } });
+  clickHandler.register('button[data-mode=oneshot]',   { click: e => { trigger(e, true, s => s.setPlayModeOneShot());   } });
+  clickHandler.register('button[data-mode=gate]',      { click: e => { trigger(e, true, s => s.setPlayModeGate());      } });
 
   clickHandler.register('button.colour',       { click: setColour });
   clickHandler.register('button.save-colour',  { click: setColour });
-  clickHandler.register('button.show-modes',   { click: (e) => { show(e, '.modes'); } });
-  clickHandler.register('button.show-colours', { click: (e) => { show(e, '.colours'); } });
+  clickHandler.register('button.show-modes',   { click: e => show(e, '.modes') });
+  clickHandler.register('button.show-colours', { click: e => show(e, '.colours') });
+  clickHandler.register('button.assign-key',   { click: e => captureKey(e) });
 
   // Navigation
   clickHandler.register('button#add-row',  { click: () => { board.addRow();    boardRenderer.render(); } });

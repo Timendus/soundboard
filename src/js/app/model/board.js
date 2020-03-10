@@ -67,4 +67,8 @@ export default class Board {
     return this._grid[y][x];
   }
 
+  getByKey(key) {
+    return this._grid.flat().find(s => s && s.key === key);
+  }
+
 }

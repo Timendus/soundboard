@@ -125,9 +125,19 @@
         &.green  { background-color: $sound-colour-green;  }
         &.orange { background-color: $sound-colour-orange; }
       }
+
+      &.assign-key {
+        border-color: $play-mode-button-border-active;
+        background-color: $play-mode-button-active;
+
+        &:not(.assigned):before {
+          content: '⌨︎';
+          margin-left: -2px;
+        }
+      }
     }
 
-    .modes, .colours {
+    .modes, .colours, .keys {
       position: absolute;
       display: none;
       padding: 5px;
@@ -140,6 +150,11 @@
 
       &.colours {
         top: -1em;
+      }
+
+      &.keys {
+        color: white;
+        padding: 10px 20px;
       }
 
       button {
