@@ -9,11 +9,14 @@ export default class Midi {
         access.inputs.forEach(input => this._connectDevice(input));
 
         access.addEventListener('statechange', e => {
-          console.log(e);
-          // Print information about the (dis)connected MIDI controller
-          console.log(e.port.name, e.port.manufacturer, e.port.state);
+          const device = e.port;
+          if ( device.type !== 'input' ) return;
 
-          // if ( new device ) this._connectDevice(device)
+          if ( device.state === 'disconnected' )
+            console.log(`🎹 Disconnected MIDI device '${device.manufacturer} ${device.name}'`);
+
+          if ( device.state === 'connected' )
+            console.log(`🎹 Connected MIDI device '${device.manufacturer} ${device.name}'`);
         });
 
         if ( access.inputs.size === 0 )
@@ -42,7 +45,6 @@ export default class Midi {
   }
 
   _connectDevice(device) {
-    console.log("🎹 Connecting device", device);
     device.addEventListener('midimessage', midiEvent => {
       const command = midiEvent.data[0];
       const note = midiEvent.data[1];
