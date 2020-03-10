@@ -21,9 +21,9 @@ export default class BoardRenderer {
           colour   = sound.colour;
           playMode = sound.playMode;
         } else {
-          title    = 'Drop an mp3 file here';
+          title    = 'Click or drop<br/><br/>an mp3 file here';
           artist   = '';
-          colour   = 'gray';
+          colour   = '#615a5a';
           playMode = PlayMode.Disabled;
         }
 
