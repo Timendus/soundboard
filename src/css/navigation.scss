@@ -11,11 +11,17 @@ nav {
   text-align: left;
   border-bottom: 1px solid gray;
 
+  img {
+    height: 50px;
+    margin: 7px 0px 0px 20px;
+    float: left;
+  }
+
   a {
     display: inline-block;
     height: 70px;
     line-height: 70px;
-    padding: 0 1vw;
+    padding: 0 10px;
 
     font-size: 2em;
     color: white;

@@ -21,9 +21,9 @@ export default class BoardRenderer {
           colour   = sound.colour;
           playMode = sound.playMode;
         } else {
-          title    = 'Drop an mp3 file here';
+          title    = 'Click or drop<br/><br/>an mp3 file here';
           artist   = '';
-          colour   = 'gray';
+          colour   = '#615a5a';
           playMode = PlayMode.Disabled;
         }
 
@@ -32,7 +32,7 @@ export default class BoardRenderer {
                data-x='${x}' data-y='${y}'
                style='background-color: ${colour}'>
             ${sound ? `
-              <div class='progress'></div>
+              <div class='progress'><div class='bar'></div></div>
               <div class='settings'>
                 <button class='show-modes ${ playMode == PlayMode.Retrigger ? 'retrigger' :
                                              playMode == PlayMode.OneShot   ? 'oneshot'   :
