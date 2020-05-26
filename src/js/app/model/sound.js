@@ -79,6 +79,10 @@ export default class Sound {
     this._playMode = PlayMode.Gate;
   }
 
+  setVolume(volume) {
+    this._player.volume = volume;
+  }
+
   // Getters
 
   get mp3File() {

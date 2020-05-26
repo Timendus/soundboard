@@ -18,6 +18,7 @@ window.addEventListener('load', function() {
   let dragDrop      = Thimbleful.FileTarget.instance();
   let midi          = new Midi();
   let keyboard      = new Keyboard();
+  let volume        = 1;
 
   let rows = Math.round(window.innerHeight/150);
   let cols = Math.round(window.innerWidth/200);
@@ -45,6 +46,7 @@ window.addEventListener('load', function() {
     sound.mp3File = mp3File;
     sound.x = x;
     sound.y = y;
+    sound.setVolume(volume);
     board.placeSound(x, y, sound);
 
     // Rerender the board (this needs to be improved)
@@ -104,6 +106,11 @@ window.addEventListener('load', function() {
   clickHandler.register('body:not(.settings) .sound', {
     mousedown: e => trigger(e, false, (s) => s.push()),
     mouseup:   e => trigger(e, false, (s) => s.release())
+  });
+
+  document.getElementById('volume').addEventListener('input', e => {
+    volume = e.target.value;
+    board.allSounds().forEach(s => s.setVolume(volume));
   });
 
   midi.register({
