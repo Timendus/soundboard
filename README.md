@@ -1,3 +1,5 @@
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/T6T0DOOWP)
+
 # Soundboard
 
 This is a simple drag and drop soundboard app with MIDI support. It allows you
