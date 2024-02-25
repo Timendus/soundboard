@@ -1,5 +1,8 @@
 nav {
-  box-sizing: border-box;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+
   position: fixed;
   top: 0;
   left: 0;
@@ -28,12 +31,19 @@ nav {
     text-decoration: none;
   }
 
+  & div {
+    flex-grow: 1;
+  }
+
   & button {
     margin: 0;
     padding: 0 2em;
     height: 70px;
-    line-height: 70px;
+    width: 100px;
     vertical-align: bottom;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: center;
 
     background: none;
     border: 0;
@@ -42,21 +52,34 @@ nav {
     cursor: pointer;
     outline: none;
 
-    &#add-row,
-    &#add-col {
-      display: none;
-
-      body.settings & {
-        display: initial;
-      }
+    display: none;
+    body.settings & {
+      display: flex;
     }
 
     &#settings {
+      display: flex;
       float: right;
     }
 
     &:hover {
       background-color: gray;
+    }
+
+    & i.icon {
+      font-style: normal;
+    }
+    & p {
+      margin: 0;
+    }
+
+    @media screen and (max-width: 900px) {
+      width: auto;
+      padding: 0 0.5em;
+
+      & p {
+        display: none;
+      }
     }
   }
 

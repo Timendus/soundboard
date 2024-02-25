@@ -14,3 +14,9 @@ body {
   background-color: var(--background-colour);
   color: var(--text-colour);
 }
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
