@@ -1,4 +1,4 @@
-// import * as mm from '../lib/music-metadata-browser-2.5.10.js';
+import '../lib/jsmediatags-3.9.7.js';
 
 export default class Mp3File {
 
@@ -12,9 +12,10 @@ export default class Mp3File {
     this._tags = {};
 
     // Parse meta data
-    // mm.parseBlob(file).then(metadata => {
-    //   this._tags = metadata.common;
-    // });
+    jsmediatags.read(file, {
+      onSuccess: (tags) => this._tags = tags?.tags,
+      onError: (error) => { throw error; }
+    });
   }
 
   // Public methods
