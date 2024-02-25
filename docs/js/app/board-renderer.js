@@ -1,4 +1,4 @@
-import PlayMode from './model/play-mode';
+import PlayMode from './model/play-mode.js';
 
 export default class BoardRenderer {
 
@@ -9,21 +9,21 @@ export default class BoardRenderer {
 
   render() {
     let html = '';
-    for ( let y = 0; y < this._board.rows; y++ ) {
+    for (let y = 0; y < this._board.rows; y++) {
       html += `<div class='row'>`;
-      for ( let x = 0; x < this._board.cols; x++ ) {
-        let sound  = this._board.getSound(x,y);
+      for (let x = 0; x < this._board.cols; x++) {
+        let sound = this._board.getSound(x, y);
         let title, artist, colour, playMode;
 
-        if ( sound ) {
-          title    = sound.mp3File.getTag('title') || 'Unknown song';
-          artist   = sound.mp3File.getTag('artist');
-          colour   = sound.colour;
+        if (sound) {
+          title = sound.mp3File.getTag('title') || 'Unknown song';
+          artist = sound.mp3File.getTag('artist');
+          colour = sound.colour;
           playMode = sound.playMode;
         } else {
-          title    = 'Click or drop<br/><br/>an mp3 file here';
-          artist   = '';
-          colour   = '#615a5a';
+          title = 'Click or drop<br/><br/>an mp3 file here';
+          artist = '';
+          colour = '#615a5a';
           playMode = PlayMode.Disabled;
         }
 
@@ -34,13 +34,13 @@ export default class BoardRenderer {
             ${sound ? `
               <div class='progress'><div class='bar'></div></div>
               <div class='settings'>
-                <button class='show-modes ${ playMode == PlayMode.Retrigger ? 'retrigger' :
-                                             playMode == PlayMode.OneShot   ? 'oneshot'   :
-                                             playMode == PlayMode.Gate      ? 'gate' : '' } active'></button>
+                <button class='show-modes ${playMode == PlayMode.Retrigger ? 'retrigger' :
+              playMode == PlayMode.OneShot ? 'oneshot' :
+                playMode == PlayMode.Gate ? 'gate' : ''} active'></button>
                 <div class='modes'>
                   <button data-mode='retrigger' class='retrigger ${playMode == PlayMode.Retrigger ? 'active' : ''}'></button>
-                  <button data-mode='oneshot'   class='oneshot   ${playMode == PlayMode.OneShot   ? 'active' : ''}'></button>
-                  <button data-mode='gate'      class='gate      ${playMode == PlayMode.Gate      ? 'active' : ''}'></button>
+                  <button data-mode='oneshot'   class='oneshot   ${playMode == PlayMode.OneShot ? 'active' : ''}'></button>
+                  <button data-mode='gate'      class='gate      ${playMode == PlayMode.Gate ? 'active' : ''}'></button>
                 </div>
                 <button class='show-colours'></button>
                 <div class='colours'>

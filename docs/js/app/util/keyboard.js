@@ -2,12 +2,12 @@ export default class Keyboard {
 
   constructor() {
     window.addEventListener('keydown', e => !e.repeat && this._keyDownHandler(e.key));
-    window.addEventListener('keyup',   e => !e.repeat && this._keyUpHandler(e.key));
+    window.addEventListener('keyup', e => !e.repeat && this._keyUpHandler(e.key));
   }
 
   register({ keyDown, keyUp }) {
     this._keyDown = keyDown;
-    this._keyUp   = keyUp;
+    this._keyUp = keyUp;
   }
 
   getNextKeyPress() {
@@ -23,16 +23,16 @@ export default class Keyboard {
   }
 
   _keyDownHandler(key) {
-    if ( this._resolve ) {
+    if (this._resolve) {
       this._resolve(key);
       return this.cancelGetKeyPress();
     }
 
-    if ( this._keyDown ) this._keyDown(key);
+    if (this._keyDown) this._keyDown(key);
   }
 
   _keyUpHandler(key) {
-    if ( this._keyUp ) this._keyUp(key);
+    if (this._keyUp) this._keyUp(key);
   }
 
 }

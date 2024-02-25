@@ -1,4 +1,4 @@
-@import 'colours';
+@import 'colours.css';
 
 .sound {
   display: flex;
@@ -21,19 +21,24 @@
       box-shadow: 0px 0px 0px 2px white;
     }
 
-    .props h1, .props p {
+    & .props h1,
+    & .props p {
       color: white;
     }
   }
 
-  // Please don't catch click / drag events
-  .progress, .props, .settings, h1, p {
+  /* Please don't catch click / drag events */
+  & .progress,
+  & .props,
+  & .settings,
+  h1,
+  p {
     pointer-events: none;
   }
 
-  // This is a nice little progress indicator
-  // that is yet to be made active :)
-  .progress {
+  /* This is a nice little progress indicator
+     that is yet to be made active :) */
+  & .progress {
     flex: 1 1;
     display: block;
     position: relative;
@@ -42,7 +47,7 @@
       display: none;
     }
 
-    .bar {
+    & .bar {
       position: absolute;
       top: 45%;
       left: 25%;
@@ -53,14 +58,15 @@
     }
   }
 
-  // These are the textual properties title and artist
-  .props {
+  /* These are the textual properties title and artist */
+  & .props {
     flex: 1 1;
     display: flex;
     flex-flow: column nowrap;
     justify-content: center;
 
-    h1, p {
+    & h1,
+    & p {
       font-size: 12px;
       line-height: 1em;
       overflow: hidden;
@@ -72,8 +78,8 @@
     }
   }
 
-  // These are the settings of the sound, only visible in settings mode
-  .settings {
+  /* These are the settings of the sound, only visible in settings mode */
+  & .settings {
     flex: 1 1;
     display: none;
     flex-flow: row nowrap;
@@ -85,7 +91,7 @@
       display: flex;
     }
 
-    button {
+    & button {
       width: 30px;
       height: 30px;
       margin: 7px;
@@ -93,36 +99,64 @@
       pointer-events: all;
       cursor: pointer;
 
-      background-color: $play-mode-button;
-      border: 2px solid $play-mode-button-border;
+      background-color: var(--play-mode-button);
+      border: 2px solid var(--play-mode-button-border);
       border-radius: 50%;
 
       &.active {
-        border-color: $play-mode-button-border-active;
-        background-color: $play-mode-button-active;
+        border-color: var(--play-mode-button-border-active);
+        background-color: var(--play-mode-button-active);
       }
 
       &.show-colours {
         background: none;
       }
 
-      &.retrigger:before { content: '-'; }
-      &.oneshot:before   { content: '|'; }
-      &.gate:before      { content: 'o'; }
+      &.retrigger:before {
+        content: '-';
+      }
+
+      &.oneshot:before {
+        content: '|';
+      }
+
+      &.gate:before {
+        content: 'o';
+      }
 
       &.colour {
-        &.blue   { background-color: $sound-colour-blue;   }
-        &.red    { background-color: $sound-colour-red;    }
-        &.purple { background-color: $sound-colour-purple; }
-        &.cyan   { background-color: $sound-colour-cyan;   }
-        &.yellow { background-color: $sound-colour-yellow; }
-        &.green  { background-color: $sound-colour-green;  }
-        &.orange { background-color: $sound-colour-orange; }
+        &.blue {
+          background-color: var(--sound-colour-blue);
+        }
+
+        &.red {
+          background-color: var(--sound-colour-red);
+        }
+
+        &.purple {
+          background-color: var(--sound-colour-purple);
+        }
+
+        &.cyan {
+          background-color: var(--sound-colour-cyan);
+        }
+
+        &.yellow {
+          background-color: var(--sound-colour-yellow);
+        }
+
+        &.green {
+          background-color: var(--sound-colour-green);
+        }
+
+        &.orange {
+          background-color: var(--sound-colour-orange);
+        }
       }
 
       &.assign-key {
-        border-color: $play-mode-button-border-active;
-        background-color: $play-mode-button-active;
+        border-color: var(--play-mode-button-border-active);
+        background-color: var(--play-mode-button-active);
 
         &:not(.assigned):before {
           content: '⌨︎';
@@ -131,12 +165,14 @@
       }
     }
 
-    .modes, .colours, .keys {
+    & .modes,
+    & .colours,
+    & .keys {
       position: absolute;
       display: none;
       padding: 5px;
 
-      background-color: $background-colour;
+      background-color: var(--background-colour);
 
       &.active {
         display: block;
@@ -151,7 +187,7 @@
         padding: 10px 20px;
       }
 
-      button {
+      & button {
         margin: 2px;
       }
     }

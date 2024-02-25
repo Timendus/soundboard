@@ -11,13 +11,13 @@ nav {
   text-align: left;
   border-bottom: 1px solid gray;
 
-  img {
+  & img {
     height: 50px;
     margin: 7px 0px 0px 20px;
     float: left;
   }
 
-  a {
+  & a {
     display: inline-block;
     height: 70px;
     line-height: 70px;
@@ -28,7 +28,7 @@ nav {
     text-decoration: none;
   }
 
-  button {
+  & button {
     margin: 0;
     padding: 0 2em;
     height: 70px;
@@ -42,13 +42,15 @@ nav {
     cursor: pointer;
     outline: none;
 
-    &#add-row, &#add-col {
+    &#add-row,
+    &#add-col {
       display: none;
 
       body.settings & {
         display: initial;
       }
     }
+
     &#settings {
       float: right;
     }

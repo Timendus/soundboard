@@ -1,27 +1,23 @@
-require('../../css/index.scss');
+import Board from './model/board.js';
+import Sound from './model/sound.js';
+import Mp3File from './model/mp3file.js';
+import Midi from './util/midi.js';
+import Keyboard from './util/keyboard.js';
+import BoardRenderer from './board-renderer.js';
+import './lib/thimbleful.js';
+import './util/pwa.js';
 
-import Board         from './model/board';
-import Sound         from './model/sound';
-import Mp3File       from './model/mp3file';
-import Midi          from './util/midi';
-import Keyboard      from './util/keyboard';
-import BoardRenderer from './board-renderer';
-import Thimbleful    from 'thimbleful';
-
-window.addEventListener('load', function() {
-
-  require('./util/pwa');
-
-  let board         = new Board();
+window.addEventListener('load', function () {
+  let board = new Board();
   let boardRenderer = new BoardRenderer(document.getElementById('board'), board);
-  let clickHandler  = Thimbleful.Click.instance();
-  let dragDrop      = Thimbleful.FileTarget.instance();
-  let midi          = new Midi();
-  let keyboard      = new Keyboard();
-  let volume        = 1;
+  let clickHandler = Thimbleful.Click.instance();
+  let dragDrop = Thimbleful.FileTarget.instance();
+  let midi = new Midi();
+  let keyboard = new Keyboard();
+  let volume = 1;
 
-  let rows = Math.round(window.innerHeight/150);
-  let cols = Math.round(window.innerWidth/200);
+  let rows = Math.round(window.innerHeight / 150);
+  let cols = Math.round(window.innerWidth / 200);
 
   board.rows = rows;
   board.cols = cols;
@@ -50,29 +46,29 @@ window.addEventListener('load', function() {
     board.placeSound(x, y, sound);
 
     // Rerender the board (this needs to be improved)
-    window.setTimeout(function() {
+    window.setTimeout(function () {
       boardRenderer.render();
     }, 100);
   }
 
   function trigger(e, redraw, callback) {
     const [sound] = _soundFromEvent(e);
-    if ( !sound ) return;
+    if (!sound) return;
     callback(sound);
-    if ( redraw ) boardRenderer.render();
+    if (redraw) boardRenderer.render();
   }
 
   function keyTrigger(key, callback) {
     const sound = board.getByKey(key);
-    if ( !sound ) return;
+    if (!sound) return;
     callback(sound);
   }
 
   function setColour(e) {
     const [sound] = _soundFromEvent(e);
-    if ( !sound ) { return; }
+    if (!sound) { return; }
     let colourValue;
-    if ( e.target.classList.contains('save-colour') ) {
+    if (e.target.classList.contains('save-colour')) {
       colourValue = e.target.closest('.sound').querySelector('input').value;
     } else {
       colourValue = window.getComputedStyle(e.target).getPropertyValue('background-color');
@@ -105,7 +101,7 @@ window.addEventListener('load', function() {
 
   clickHandler.register('body:not(.settings) .sound', {
     mousedown: e => trigger(e, false, (s) => s.push()),
-    mouseup:   e => trigger(e, false, (s) => s.release())
+    mouseup: e => trigger(e, false, (s) => s.release())
   });
 
   document.getElementById('volume').addEventListener('input', e => {
@@ -115,28 +111,28 @@ window.addEventListener('load', function() {
 
   midi.register({
     keyDown: key => keyTrigger(key, s => s.push()),
-    keyUp:   key => keyTrigger(key, s => s.release())
+    keyUp: key => keyTrigger(key, s => s.release())
   });
 
   keyboard.register({
     keyDown: key => keyTrigger(key, s => s.push()),
-    keyUp:   key => keyTrigger(key, s => s.release())
+    keyUp: key => keyTrigger(key, s => s.release())
   });
 
   // Sound settings
   clickHandler.register('button[data-mode=retrigger]', { click: e => { trigger(e, true, s => s.setPlayModeRetrigger()); } });
-  clickHandler.register('button[data-mode=oneshot]',   { click: e => { trigger(e, true, s => s.setPlayModeOneShot());   } });
-  clickHandler.register('button[data-mode=gate]',      { click: e => { trigger(e, true, s => s.setPlayModeGate());      } });
+  clickHandler.register('button[data-mode=oneshot]', { click: e => { trigger(e, true, s => s.setPlayModeOneShot()); } });
+  clickHandler.register('button[data-mode=gate]', { click: e => { trigger(e, true, s => s.setPlayModeGate()); } });
 
-  clickHandler.register('button.colour',       { click: setColour });
-  clickHandler.register('button.save-colour',  { click: setColour });
-  clickHandler.register('button.show-modes',   { click: e => show(e, '.modes') });
+  clickHandler.register('button.colour', { click: setColour });
+  clickHandler.register('button.save-colour', { click: setColour });
+  clickHandler.register('button.show-modes', { click: e => show(e, '.modes') });
   clickHandler.register('button.show-colours', { click: e => show(e, '.colours') });
-  clickHandler.register('button.assign-key',   { click: e => captureKey(e) });
+  clickHandler.register('button.assign-key', { click: e => captureKey(e) });
 
   // Navigation
-  clickHandler.register('button#add-row',  { click: () => { board.addRow();    boardRenderer.render(); } });
-  clickHandler.register('button#add-col',  { click: () => { board.addColumn(); boardRenderer.render(); } });
+  clickHandler.register('button#add-row', { click: () => { board.addRow(); boardRenderer.render(); } });
+  clickHandler.register('button#add-col', { click: () => { board.addColumn(); boardRenderer.render(); } });
   clickHandler.register('button#settings', { click: () => { document.querySelector('body').classList.toggle('settings'); } });
 
   boardRenderer.render();
