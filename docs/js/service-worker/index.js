@@ -21,9 +21,9 @@ const filesToCache = [
   'images/radio-icon.svg'
 ];
 
-self.addEventListener('install', function(evnt) {
+self.addEventListener('install', function (evnt) {
   evnt.waitUntil(
-    caches.open('soundboard').then(function(cache) {
+    caches.open('soundboard').then(function (cache) {
       return cache.addAll(
         filesToCache.map(file => `../../${file}`)
       );
@@ -31,10 +31,10 @@ self.addEventListener('install', function(evnt) {
   );
 });
 
-self.addEventListener('fetch', function(evnt) {
+self.addEventListener('fetch', function (evnt) {
   evnt.respondWith(
-    caches.open('soundboard').then(function(cache) {
-      return cache.match(evnt.request).then(function(response) {
+    caches.open('soundboard').then(function (cache) {
+      return cache.match(evnt.request).then(function (response) {
         return response || fetch(evnt.request);
       });
     })

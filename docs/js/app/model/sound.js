@@ -12,7 +12,7 @@ export default class Sound {
   }
 
   _loadPlayer() {
-    if ( !this._playerLoaded ) {
+    if (!this._playerLoaded) {
       this._player.src = this._mp3File.data;
       this._player.load();
       this._player.addEventListener('ended', () => this._stopAnimation());
@@ -43,7 +43,7 @@ export default class Sound {
   }
 
   _renderProgress() {
-    if ( !this._playing )
+    if (!this._playing)
       return requestAnimationFrame(() => this._renderProgress());
 
     const progress = document.querySelector(`div.sound[data-x='${this.x}'][data-y='${this.y}'] .progress .bar`);
@@ -107,7 +107,7 @@ export default class Sound {
     this._loadPlayer();
     this._player.currentTime = 0;
 
-    switch(this._playMode) {
+    switch (this._playMode) {
       case PlayMode.Retrigger:
         this._player.loop = false;
         this._stopAnimation();
@@ -116,7 +116,7 @@ export default class Sound {
         break;
       case PlayMode.OneShot:
         this._player.loop = false;
-        if ( this._player.paused ) {
+        if (this._player.paused) {
           this._startAnimation();
           this._player.play();
         } else {
@@ -133,7 +133,7 @@ export default class Sound {
   }
 
   release() {
-    switch(this._playMode) {
+    switch (this._playMode) {
       case PlayMode.Gate:
         this._stopAnimation();
         this._player.pause();

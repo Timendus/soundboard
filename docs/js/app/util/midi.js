@@ -1,7 +1,7 @@
 export default class Midi {
 
   constructor() {
-    if ( !navigator.requestMIDIAccess )
+    if (!navigator.requestMIDIAccess)
       return console.log("🎹 MIDI not available");
 
     navigator.requestMIDIAccess()
@@ -10,16 +10,16 @@ export default class Midi {
 
         access.addEventListener('statechange', e => {
           const device = e.port;
-          if ( device.type !== 'input' ) return;
+          if (device.type !== 'input') return;
 
-          if ( device.state === 'disconnected' )
+          if (device.state === 'disconnected')
             console.log(`🎹 Disconnected MIDI device '${device.manufacturer} ${device.name}'`);
 
-          if ( device.state === 'connected' )
+          if (device.state === 'connected')
             console.log(`🎹 Connected MIDI device '${device.manufacturer} ${device.name}'`);
         });
 
-        if ( access.inputs.size === 0 )
+        if (access.inputs.size === 0)
           console.log("🎹 No MIDI devices found");
       })
       .catch(failure => {
@@ -29,7 +29,7 @@ export default class Midi {
 
   register({ keyDown, keyUp }) {
     this._keyDown = keyDown;
-    this._keyUp   = keyUp;
+    this._keyUp = keyUp;
   }
 
   getNextKeyPress() {
@@ -50,24 +50,24 @@ export default class Midi {
       const note = midiEvent.data[1];
       const velocity = (midiEvent.data.length > 2) ? midiEvent.data[2] : 0;
 
-      if ( command === 144 && velocity > 0 )
+      if (command === 144 && velocity > 0)
         this._keyDownHandler(note);
-      if ( command === 144 && velocity < 0 || command === 128 )
+      if (command === 144 && velocity < 0 || command === 128)
         this._keyUpHandler(note);
     });
   }
 
   _keyDownHandler(note) {
-    if ( this._resolve ) {
+    if (this._resolve) {
       this._resolve(note);
       return this.cancelGetKeyPress();
     }
 
-    if ( this._keyDown ) this._keyDown(note);
+    if (this._keyDown) this._keyDown(note);
   }
 
   _keyUpHandler(note) {
-    if ( this._keyUp ) this._keyUp(note);
+    if (this._keyUp) this._keyUp(note);
   }
 
 }

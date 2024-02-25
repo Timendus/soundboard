@@ -8,21 +8,21 @@ export default class Board {
   }
 
   _makeGrid() {
-    for(var y = 0; y < this._rows; y++) {
+    for (var y = 0; y < this._rows; y++) {
       this._grid[y] = this._grid[y] || [];
-      for(var x = 0; x < this._cols; x++) {
+      for (var x = 0; x < this._cols; x++) {
         this._grid[y][x] = this._grid[y][x] || null;
       }
     }
   }
 
   _validateCoords(x, y) {
-    if ( x === undefined ||
-         y === undefined ||
-         x > this._cols  ||
-         y > this._rows  ||
-         x < 0           ||
-         y < 0           ) {
+    if (x === undefined ||
+      y === undefined ||
+      x > this._cols ||
+      y > this._rows ||
+      x < 0 ||
+      y < 0) {
       throw new Error('Out of bounds');
     }
   }
@@ -58,12 +58,12 @@ export default class Board {
   }
 
   placeSound(x, y, sound) {
-    this._validateCoords(x,y);
+    this._validateCoords(x, y);
     this._grid[y][x] = sound;
   }
 
   getSound(x, y) {
-    this._validateCoords(x,y);
+    this._validateCoords(x, y);
     return this._grid[y][x];
   }
 

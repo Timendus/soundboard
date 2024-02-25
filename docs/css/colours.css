@@ -1,20 +1,20 @@
 :root {
-    --background-colour: #383333;
-    --text-colour: #a49898;
+  --background-colour: #383333;
+  --text-colour: #a49898;
 
-    --sound-colour-blue:   #26748E;
-    --sound-colour-red:    #D35528;
-    --sound-colour-purple: #934873;
-    --sound-colour-cyan:   #00B9AE;
-    --sound-colour-yellow: #F9C80E;
-    --sound-colour-green:  #48BA66;
-    --sound-colour-orange: #FF9C4C;
+  --sound-colour-blue: #26748E;
+  --sound-colour-red: #D35528;
+  --sound-colour-purple: #934873;
+  --sound-colour-cyan: #00B9AE;
+  --sound-colour-yellow: #F9C80E;
+  --sound-colour-green: #48BA66;
+  --sound-colour-orange: #FF9C4C;
 
-    --play-mode-button:               lightgray;
-    --play-mode-button-border:        white;
-    --play-mode-button-active:        white;
-    --play-mode-button-border-active: white;
+  --play-mode-button: lightgray;
+  --play-mode-button-border: white;
+  --play-mode-button-active: white;
+  --play-mode-button-border-active: white;
 
-    --navigation-colour: lightgray;
-    --navigation-button-colour: #9a9ac5;
+  --navigation-colour: lightgray;
+  --navigation-button-colour: #9a9ac5;
 }

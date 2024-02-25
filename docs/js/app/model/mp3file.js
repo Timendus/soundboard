@@ -3,7 +3,7 @@ import '../lib/jsmediatags-3.9.7.js';
 export default class Mp3File {
 
   constructor(file, data) {
-    if ( !file.type.match(/^audio/) ) {
+    if (!file.type.match(/^audio/)) {
       throw new Error('Invalid file type');
     }
 
@@ -25,7 +25,7 @@ export default class Mp3File {
   }
 
   getTag(tag) {
-    if ( tag === 'title' )
+    if (tag === 'title')
       return this._tags[tag] || this._file.name;
 
     return this._tags[tag] || "";

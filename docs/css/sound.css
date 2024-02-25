@@ -21,13 +21,18 @@
       box-shadow: 0px 0px 0px 2px white;
     }
 
-    & .props h1, & .props p {
+    & .props h1,
+    & .props p {
       color: white;
     }
   }
 
   /* Please don't catch click / drag events */
-  & .progress, & .props, & .settings, h1, p {
+  & .progress,
+  & .props,
+  & .settings,
+  h1,
+  p {
     pointer-events: none;
   }
 
@@ -60,7 +65,8 @@
     flex-flow: column nowrap;
     justify-content: center;
 
-    & h1, & p {
+    & h1,
+    & p {
       font-size: 12px;
       line-height: 1em;
       overflow: hidden;
@@ -106,18 +112,46 @@
         background: none;
       }
 
-      &.retrigger:before { content: '-'; }
-      &.oneshot:before   { content: '|'; }
-      &.gate:before      { content: 'o'; }
+      &.retrigger:before {
+        content: '-';
+      }
+
+      &.oneshot:before {
+        content: '|';
+      }
+
+      &.gate:before {
+        content: 'o';
+      }
 
       &.colour {
-        &.blue   { background-color: var(--sound-colour-blue);   }
-        &.red    { background-color: var(--sound-colour-red);    }
-        &.purple { background-color: var(--sound-colour-purple); }
-        &.cyan   { background-color: var(--sound-colour-cyan);   }
-        &.yellow { background-color: var(--sound-colour-yellow); }
-        &.green  { background-color: var(--sound-colour-green);  }
-        &.orange { background-color: var(--sound-colour-orange); }
+        &.blue {
+          background-color: var(--sound-colour-blue);
+        }
+
+        &.red {
+          background-color: var(--sound-colour-red);
+        }
+
+        &.purple {
+          background-color: var(--sound-colour-purple);
+        }
+
+        &.cyan {
+          background-color: var(--sound-colour-cyan);
+        }
+
+        &.yellow {
+          background-color: var(--sound-colour-yellow);
+        }
+
+        &.green {
+          background-color: var(--sound-colour-green);
+        }
+
+        &.orange {
+          background-color: var(--sound-colour-orange);
+        }
       }
 
       &.assign-key {
@@ -131,7 +165,9 @@
       }
     }
 
-    & .modes, & .colours, & .keys {
+    & .modes,
+    & .colours,
+    & .keys {
       position: absolute;
       display: none;
       padding: 5px;

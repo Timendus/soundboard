@@ -42,13 +42,15 @@ nav {
     cursor: pointer;
     outline: none;
 
-    &#add-row, &#add-col {
+    &#add-row,
+    &#add-col {
       display: none;
 
       body.settings & {
         display: initial;
       }
     }
+
     &#settings {
       float: right;
     }
