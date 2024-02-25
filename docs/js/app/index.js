@@ -1,17 +1,13 @@
-require('../../css/index.scss');
-
-import Board         from './model/board';
-import Sound         from './model/sound';
-import Mp3File       from './model/mp3file';
-import Midi          from './util/midi';
-import Keyboard      from './util/keyboard';
-import BoardRenderer from './board-renderer';
-import Thimbleful    from 'thimbleful';
+import Board         from './model/board.js';
+import Sound         from './model/sound.js';
+import Mp3File       from './model/mp3file.js';
+import Midi          from './util/midi.js';
+import Keyboard      from './util/keyboard.js';
+import BoardRenderer from './board-renderer.js';
+import './lib/thimbleful.js';
+import './util/pwa.js';
 
 window.addEventListener('load', function() {
-
-  require('./util/pwa');
-
   let board         = new Board();
   let boardRenderer = new BoardRenderer(document.getElementById('board'), board);
   let clickHandler  = Thimbleful.Click.instance();

@@ -1,4 +1,4 @@
-import PlayMode from './play-mode';
+import PlayMode from './play-mode.js';
 
 export default class Sound {
 

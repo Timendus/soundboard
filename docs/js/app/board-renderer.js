@@ -1,4 +1,4 @@
-import PlayMode from './model/play-mode';
+import PlayMode from './model/play-mode.js';
 
 export default class BoardRenderer {
 
