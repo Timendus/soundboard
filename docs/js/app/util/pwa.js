@@ -1,7 +1,7 @@
 // Install Service worker
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js');
+  navigator.serviceWorker.register('js/service-worker/index.js');
 }
 
 // PWA install prompt
