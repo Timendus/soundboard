@@ -1,7 +1,7 @@
-import PlayMode from './play-mode.js';
+import PlayMode from "./play-mode.js";
+import Mp3File from "./mp3file.js";
 
 export default class Sound {
-
   constructor() {
     this._mp3File = null;
     this._colour = this._randomColour();
@@ -67,6 +67,10 @@ export default class Sound {
     this._key = key || this._key;
   }
 
+  set playMode(playMode) {
+    this._playMode = playMode || this._playMode;
+  }
+
   setPlayModeRetrigger() {
     this._playMode = PlayMode.Retrigger;
   }
@@ -99,6 +103,26 @@ export default class Sound {
 
   get key() {
     return this._key;
+  }
+
+  // Saving and loading
+
+  toStorageObject() {
+    return {
+      colour: this._colour,
+      playMode: this._playMode,
+      key: this._key,
+      file: this._mp3File.toStorageObject(),
+    };
+  }
+
+  static fromStorageObject(obj) {
+    const sound = new Sound();
+    sound.colour = obj.colour;
+    sound.playMode = obj.playMode;
+    sound.key = obj.key;
+    sound.mp3File = Mp3File.fromStorageObject(obj.file);
+    return sound;
   }
 
   // Playback

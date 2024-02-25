@@ -1,3 +1,5 @@
+import Sound from "./sound.js";
+
 export default class Board {
 
   constructor() {
@@ -75,4 +77,38 @@ export default class Board {
     return this._grid.flat().filter(s => s);
   }
 
+  // Saving and loading
+
+  toStorageObject() {
+    const soundObjects = [];
+    for (let y = 0; y < this._rows; y++) {
+      for (let x = 0; x < this._cols; x++) {
+        if (this._grid[y][x])
+          soundObjects.push({
+            x,
+            y,
+            ...this._grid[y][x].toStorageObject(),
+          });
+      }
+    }
+    return {
+      version: '1.0',
+      rows: this._rows,
+      cols: this._cols,
+      sounds: soundObjects,
+    };
+  }
+
+  static fromStorageObject(obj) {
+    if (!obj || !('version' in obj) || obj.version != '1.0')
+      throw new Error("Can't read this file.")
+    const board = new Board();
+    board.cols = obj.cols;
+    board.rows = obj.rows;
+    for (const soundObj of obj.sounds) {
+      const sound = Sound.fromStorageObject(soundObj);
+      board.placeSound(soundObj.x, soundObj.y, sound);
+    }
+    return board;
+  }
 }
