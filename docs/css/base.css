@@ -1,4 +1,4 @@
-@import 'colours';
+@import 'colours.css';
 
 html, body {
   margin: 0;
@@ -10,6 +10,6 @@ body {
   font-family: Tahoma, Arial, sans-serif;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
-  background-color: $background-colour;
-  color: $text-colour;
+  background-color: var(--background-colour);
+  color: var(--text-colour);
 }
