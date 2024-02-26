@@ -38,15 +38,21 @@ export default class BoardRenderer {
                   playMode == PlayMode.Retrigger
                     ? "retrigger"
                     : playMode == PlayMode.OneShot
-                      ? "oneshot"
-                      : playMode == PlayMode.Gate
-                        ? "gate"
-                        : ""
-                } active'></button>
+                    ? "oneshot"
+                    : playMode == PlayMode.Gate
+                    ? "gate"
+                    : ""
+                }'></button>
                 <div class='modes'>
-                  <button data-mode='retrigger' class='retrigger ${playMode == PlayMode.Retrigger ? "active" : ""}'></button>
-                  <button data-mode='oneshot'   class='oneshot   ${playMode == PlayMode.OneShot ? "active" : ""}'></button>
-                  <button data-mode='gate'      class='gate      ${playMode == PlayMode.Gate ? "active" : ""}'></button>
+                  <button data-mode='retrigger' class='retrigger ${
+                    playMode == PlayMode.Retrigger ? "active" : ""
+                  }'></button>
+                  <button data-mode='oneshot'   class='oneshot   ${
+                    playMode == PlayMode.OneShot ? "active" : ""
+                  }'></button>
+                  <button data-mode='gate'      class='gate      ${
+                    playMode == PlayMode.Gate ? "active" : ""
+                  }'></button>
                 </div>
                 <button class='show-colours'></button>
                 <div class='colours'>
@@ -59,7 +65,9 @@ export default class BoardRenderer {
                   <button class='colour orange'></button>
                   <!--<input type="text" length="10" value="${colour}"/><button class='save-colour'>Save</button>-->
                 </div>
-                <button class='assign-key ${sound.key ? "assigned" : ""}'>${sound.key ? sound.key : ""}</button>
+                <button class='assign-key ${sound.key ? "assigned" : ""}'>${
+                    sound.key ? sound.key : ""
+                  }</button>
                 <div class='keys'>
                   Press a key...
                 </div>

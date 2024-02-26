@@ -43,7 +43,7 @@ export default class Sound {
     if (!this._playing) return requestAnimationFrame(() => this._renderProgress());
 
     const progress = document.querySelector(
-      `div.sound[data-x='${this.x}'][data-y='${this.y}'] .progress .bar`,
+      `div.sound[data-x='${this.x}'][data-y='${this.y}'] .progress .bar`
     );
     const percentage = (this._player.currentTime / this._player.duration) * 100;
     progress.style.background = `linear-gradient(90deg, white 0%, white ${percentage}%, rgba(255,255,255,0.4) ${percentage}%, rgba(255,255,255,0.4) 100%)`;

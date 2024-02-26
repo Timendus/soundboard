@@ -95,8 +95,8 @@ clickHandler.register("button#load", {
         await files.load({
           types: fileTypes,
           startIn: "music",
-        }),
-      ),
+        })
+      )
     );
     board.allSounds().forEach((s) => s.destroy());
     board = newBoard;
