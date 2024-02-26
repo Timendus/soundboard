@@ -49,7 +49,7 @@ dragDrop.register(".sound:not(.loaded)", (file, data, e) => {
   sound.setVolume(volume);
   board.placeSound(x, y, sound);
 
-  saveBoard("new sound was added");
+  saveBoard();
 
   // Rerender the board (I think the timeout had something to do with the drag
   // and drop stuff not removing the hover class otherwise? Not sure anymore.)
@@ -99,7 +99,7 @@ clickHandler.register("button#load", async () => {
   board = newBoard;
   boardRenderer.render(board);
   document.querySelector("body").classList.remove("settings");
-  saveBoard("loaded save file");
+  saveBoard();
 });
 clickHandler.register("button#save", () => {
   files.save({
@@ -126,24 +126,24 @@ clickHandler.register("button.show-modes", (e) => show(e, ".modes"));
 clickHandler.register("button[data-mode=retrigger]", (e) => {
   soundFromEvent(e)?.setPlayModeRetrigger();
   boardRenderer.render(board);
-  saveBoard("play mode was changed");
+  saveBoard();
 });
 clickHandler.register("button[data-mode=oneshot]", (e) => {
   soundFromEvent(e)?.setPlayModeOneShot();
   boardRenderer.render(board);
-  saveBoard("play mode was changed");
+  saveBoard();
 });
 clickHandler.register("button[data-mode=gate]", (e) => {
   soundFromEvent(e)?.setPlayModeGate();
   boardRenderer.render(board);
-  saveBoard("play mode was changed");
+  saveBoard();
 });
 
 clickHandler.register("button.show-colours", (e) => show(e, ".colours"));
 clickHandler.register("button.colour", (e) => {
   soundFromEvent(e).colour = window.getComputedStyle(e.target).getPropertyValue("background-color");
   boardRenderer.render(board);
-  saveBoard("colour was changed");
+  saveBoard();
 });
 
 clickHandler.register("button.assign-key", (e) => {
@@ -156,14 +156,14 @@ clickHandler.register("button.assign-key", (e) => {
       keyboard.cancelGetKeyPress();
       midi.cancelGetKeyPress();
       boardRenderer.render(board);
-      saveBoard("key binding was changed");
+      saveBoard();
     });
 });
 
 clickHandler.register("button.delete-sound", (e) => {
   board.removeSound(...coordinatesFromEvent(e));
   boardRenderer.render(board);
-  saveBoard("sound was removed");
+  saveBoard();
 });
 
 // Resize the soundboard when resizing the window
@@ -182,19 +182,15 @@ function rowsAndCols() {
 // Load board from IndexedDB or create a new one
 async function findOrCreateBoard() {
   try {
-    const board = Board.fromStorageObject(await database.getItem("autosave"));
-    console.info("💾 Loaded board from IndexedDB");
-    return board;
+    return Board.fromStorageObject(await database.getItem("autosave"));
   } catch (e) {
-    console.info("💾 Started with new board");
     return new Board();
   }
 }
 
 // Store the current soundboard to IndexedDB
-async function saveBoard(reason) {
+async function saveBoard() {
   await database.setItem("autosave", board.toStorageObject());
-  console.info("💾 Saved board to IndexedDB because:", reason);
 }
 
 // Where did we click "in the grid"?
