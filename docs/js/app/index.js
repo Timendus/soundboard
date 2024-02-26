@@ -12,7 +12,7 @@ import "./util/pwa.js";
 
 const database = await IndexedDB.connect("soundboard");
 let board = await findOrCreateBoard();
-const boardRenderer = new BoardRenderer(document.getElementById("board"), board);
+const boardRenderer = new BoardRenderer(document.getElementById("board"));
 const clickHandler = Thimbleful.Click.instance();
 const dragDrop = Thimbleful.FileTarget.instance();
 const midi = new Midi();
@@ -22,7 +22,7 @@ let volume = 1;
 /* Render the board to the DOM */
 
 board.resizeIfEmpty(...rowsAndCols());
-boardRenderer.render();
+boardRenderer.render(board);
 
 /* Register all event handlers */
 
@@ -44,7 +44,7 @@ dragDrop.register(".sound:not(.loaded)", (file, data, e) => {
   // Rerender the board (I think the timeout had something to do with the drag
   // and drop stuff not removing the hover class otherwise? Not sure anymore.)
   window.setTimeout(() => {
-    boardRenderer.render();
+    boardRenderer.render(board);
   }, 10);
 });
 
@@ -74,8 +74,7 @@ clickHandler.register("button#clear", {
     board.allSounds().forEach((s) => s.destroy());
     board = new Board();
     board.resizeIfEmpty(...rowsAndCols());
-    boardRenderer.board = board;
-    boardRenderer.render();
+    boardRenderer.render(board);
     database.removeItem("autosave");
   },
 });
@@ -84,8 +83,7 @@ clickHandler.register("button#load", {
     const newBoard = Board.fromStorageObject(JSON.parse(await upload()));
     board.allSounds().forEach((s) => s.destroy());
     board = newBoard;
-    boardRenderer.board = board;
-    boardRenderer.render();
+    boardRenderer.render(board);
     document.querySelector("body").classList.remove("settings");
     saveBoard("loaded save file");
   },
@@ -98,13 +96,13 @@ clickHandler.register("button#save", {
 clickHandler.register("button#add-row", {
   click: () => {
     board.addRow();
-    boardRenderer.render();
+    boardRenderer.render(board);
   },
 });
 clickHandler.register("button#add-col", {
   click: () => {
     board.addColumn();
-    boardRenderer.render();
+    boardRenderer.render(board);
   },
 });
 clickHandler.register("button#settings", {
@@ -150,7 +148,7 @@ clickHandler.register("button.assign-key", { click: (e) => captureKey(e) });
 // Resize the soundboard when resizing the window
 window.addEventListener("resize", () => {
   board.resizeIfEmpty(...rowsAndCols());
-  boardRenderer.render();
+  boardRenderer.render(board);
 });
 
 /* Helper functions */
@@ -214,7 +212,7 @@ function trigger(e, redraw, callback) {
   const [sound] = _soundFromEvent(e);
   if (!sound) return;
   callback(sound);
-  if (redraw) boardRenderer.render();
+  if (redraw) boardRenderer.render(board);
 }
 
 function keyTrigger(key, callback) {
@@ -233,7 +231,7 @@ function setColour(e) {
     colourValue = window.getComputedStyle(e.target).getPropertyValue("background-color");
   }
   sound.colour = colourValue;
-  boardRenderer.render();
+  boardRenderer.render(board);
   saveBoard("colour was changed");
 }
 
@@ -251,7 +249,7 @@ function captureKey(e) {
     .finally(() => {
       keyboard.cancelGetKeyPress();
       midi.cancelGetKeyPress();
-      boardRenderer.render();
+      boardRenderer.render(board);
       saveBoard("key binding was changed");
     });
 }

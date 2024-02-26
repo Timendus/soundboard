@@ -1,21 +1,16 @@
 import PlayMode from "./model/play-mode.js";
 
 export default class BoardRenderer {
-  constructor(element, board) {
+  constructor(element) {
     this._element = element;
-    this._board = board;
   }
 
-  set board(board) {
-    this._board = board || this._board;
-  }
-
-  render() {
+  render(board) {
     let html = "";
-    for (let y = 0; y < this._board.rows; y++) {
+    for (let y = 0; y < board.rows; y++) {
       html += `<div class='row'>`;
-      for (let x = 0; x < this._board.cols; x++) {
-        let sound = this._board.getSound(x, y);
+      for (let x = 0; x < board.cols; x++) {
+        let sound = board.getSound(x, y);
         let title, artist, colour, playMode;
 
         if (sound) {
