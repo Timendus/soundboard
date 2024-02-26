@@ -1,14 +1,17 @@
-import PlayMode from './model/play-mode.js';
+import PlayMode from "./model/play-mode.js";
 
 export default class BoardRenderer {
-
   constructor(element, board) {
     this._element = element;
     this._board = board;
   }
 
+  set board(board) {
+    this._board = board || this._board;
+  }
+
   render() {
-    let html = '';
+    let html = "";
     for (let y = 0; y < this._board.rows; y++) {
       html += `<div class='row'>`;
       for (let x = 0; x < this._board.cols; x++) {
@@ -16,31 +19,39 @@ export default class BoardRenderer {
         let title, artist, colour, playMode;
 
         if (sound) {
-          title = sound.mp3File.getTag('title') || 'Unknown song';
-          artist = sound.mp3File.getTag('artist');
+          title = sound.mp3File.getTag("title") || "Unknown song";
+          artist = sound.mp3File.getTag("artist");
           colour = sound.colour;
           playMode = sound.playMode;
         } else {
-          title = 'Click or drop<br/><br/>an mp3 file here';
-          artist = '';
-          colour = '#615a5a';
+          title = "Click or drop<br/><br/>an mp3 file here";
+          artist = "";
+          colour = "#615a5a";
           playMode = PlayMode.Disabled;
         }
 
         html += `
-          <div class='sound ${sound ? 'loaded' : ''}'
+          <div class='sound ${sound ? "loaded" : ""}'
                data-x='${x}' data-y='${y}'
                style='background-color: ${colour}'>
-            ${sound ? `
+            ${
+              sound
+                ? `
               <div class='progress'><div class='bar'></div></div>
               <div class='settings'>
-                <button class='show-modes ${playMode == PlayMode.Retrigger ? 'retrigger' :
-              playMode == PlayMode.OneShot ? 'oneshot' :
-                playMode == PlayMode.Gate ? 'gate' : ''} active'></button>
+                <button class='show-modes ${
+                  playMode == PlayMode.Retrigger
+                    ? "retrigger"
+                    : playMode == PlayMode.OneShot
+                      ? "oneshot"
+                      : playMode == PlayMode.Gate
+                        ? "gate"
+                        : ""
+                } active'></button>
                 <div class='modes'>
-                  <button data-mode='retrigger' class='retrigger ${playMode == PlayMode.Retrigger ? 'active' : ''}'></button>
-                  <button data-mode='oneshot'   class='oneshot   ${playMode == PlayMode.OneShot ? 'active' : ''}'></button>
-                  <button data-mode='gate'      class='gate      ${playMode == PlayMode.Gate ? 'active' : ''}'></button>
+                  <button data-mode='retrigger' class='retrigger ${playMode == PlayMode.Retrigger ? "active" : ""}'></button>
+                  <button data-mode='oneshot'   class='oneshot   ${playMode == PlayMode.OneShot ? "active" : ""}'></button>
+                  <button data-mode='gate'      class='gate      ${playMode == PlayMode.Gate ? "active" : ""}'></button>
                 </div>
                 <button class='show-colours'></button>
                 <div class='colours'>
@@ -53,17 +64,23 @@ export default class BoardRenderer {
                   <button class='colour orange'></button>
                   <!--<input type="text" length="10" value="${colour}"/><button class='save-colour'>Save</button>-->
                 </div>
-                <button class='assign-key ${sound.key ? 'assigned' : ''}'>${sound.key ? sound.key : ''}</button>
+                <button class='assign-key ${sound.key ? "assigned" : ""}'>${sound.key ? sound.key : ""}</button>
                 <div class='keys'>
                   Press a key...
                 </div>
               </div>
-            ` : ''}
+            `
+                : ""
+            }
             <div class='props'>
               <h1>${title}</h1>
-              ${sound ? `
+              ${
+                sound
+                  ? `
                 <p>${artist}</p>
-              ` : ''}
+              `
+                  : ""
+              }
             </div>
           </div>
         `;
@@ -72,5 +89,4 @@ export default class BoardRenderer {
     }
     this._element.innerHTML = html;
   }
-
 }

@@ -24,23 +24,21 @@ the blocks. Each block will randomly be assigned a starting colour. Clicking a
 loaded block will trigger the sound to play.
 
 **Please note:** The app will generate a number of blocks that comfortably fit
-on your screen. If you resize the window this may mess things up, but the app
+on your screen. If you have already added any sounds to the soundboard, the app
 will not automatically add blocks or throw blocks away as you probably don't
-want that. So the solution is to first resize your window, then refresh, then
+want that. So the solution is to first pick a size for your window and then
 start adding files.
-
-**Also note:** The soundboard currently has no lasting memory. So when you leave
-the page in your web browser or when you close the progressive web app, all your
-sounds and settings will be lost. You will have to add them again next time.
 
 ## Settings
 
 You can switch the app to settings mode by clicking the wrench in the top right
-corner. In that mode you can manually add a row or a column if you run out of
-space. And in settings mode you can change the playback mode, colour and
-associated keyboard or MIDI key of your sound blocks.
+corner. In that mode you can clear the board, save it to file, load it from file
+or manually add a row or a column if you run out of space. And in settings mode
+you can change the playback mode, colour and associated keyboard or MIDI key of
+your sound blocks.
 
 ![Settings mode](screenshots/settings.png "Settings mode")
+_Screenshot is outdated, sorry for that 🙈_
 
 ### Playback modes
 

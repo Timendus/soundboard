@@ -1,7 +1,10 @@
-import PlayMode from './play-mode.js';
+import PlayMode from "./play-mode.js";
+import Mp3File from "./mp3file.js";
+
+// Note: this class also has an x and y property. And it messes with the DOM.
+// That's all a bit dirty. TODO: clean this mess up some time.
 
 export default class Sound {
-
   constructor() {
     this._mp3File = null;
     this._colour = this._randomColour();
@@ -9,28 +12,21 @@ export default class Sound {
     this._player = new Audio();
     this._playerLoaded = false;
     this._playing = false;
+    this._alive = true;
   }
 
   _loadPlayer() {
     if (!this._playerLoaded) {
       this._player.src = this._mp3File.data;
       this._player.load();
-      this._player.addEventListener('ended', () => this._stopAnimation());
+      this._player.addEventListener("ended", () => this._stopAnimation());
       requestAnimationFrame(() => this._renderProgress());
       this._playerLoaded = true;
     }
   }
 
   _randomColour() {
-    let colours = [
-      '#26748E',
-      '#D35528',
-      '#934873',
-      '#00B9AE',
-      '#F9C80E',
-      '#48BA66',
-      '#FF9C4C'
-    ];
+    let colours = ["#26748E", "#D35528", "#934873", "#00B9AE", "#F9C80E", "#48BA66", "#FF9C4C"];
     return colours[Math.floor(Math.random() * colours.length)];
   }
 
@@ -43,11 +39,13 @@ export default class Sound {
   }
 
   _renderProgress() {
-    if (!this._playing)
-      return requestAnimationFrame(() => this._renderProgress());
+    if (!this._alive) return;
+    if (!this._playing) return requestAnimationFrame(() => this._renderProgress());
 
-    const progress = document.querySelector(`div.sound[data-x='${this.x}'][data-y='${this.y}'] .progress .bar`);
-    const percentage = this._player.currentTime / this._player.duration * 100;
+    const progress = document.querySelector(
+      `div.sound[data-x='${this.x}'][data-y='${this.y}'] .progress .bar`,
+    );
+    const percentage = (this._player.currentTime / this._player.duration) * 100;
     progress.style.background = `linear-gradient(90deg, white 0%, white ${percentage}%, rgba(255,255,255,0.4) ${percentage}%, rgba(255,255,255,0.4) 100%)`;
     requestAnimationFrame(() => this._renderProgress());
   }
@@ -65,6 +63,10 @@ export default class Sound {
 
   set key(key) {
     this._key = key || this._key;
+  }
+
+  set playMode(playMode) {
+    this._playMode = playMode || this._playMode;
   }
 
   setPlayModeRetrigger() {
@@ -99,6 +101,26 @@ export default class Sound {
 
   get key() {
     return this._key;
+  }
+
+  // Saving and loading
+
+  toStorageObject() {
+    return {
+      colour: this._colour,
+      playMode: this._playMode,
+      key: this._key,
+      file: this._mp3File.toStorageObject(),
+    };
+  }
+
+  static fromStorageObject(obj) {
+    const sound = new Sound();
+    sound.colour = obj.colour;
+    sound.playMode = obj.playMode;
+    sound.key = obj.key;
+    sound.mp3File = Mp3File.fromStorageObject(obj.file);
+    return sound;
   }
 
   // Playback
@@ -141,4 +163,9 @@ export default class Sound {
     }
   }
 
+  destroy() {
+    this._player.pause();
+    this._stopAnimation();
+    this._alive = false;
+  }
 }

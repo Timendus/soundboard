@@ -1,66 +1,87 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Soundboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="A very simple drag and drop soundboard app" />
 
-<head>
-  <meta charset="utf-8">
-  <title>Soundboard</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A very simple drag and drop soundboard app">
+    <link rel="icon" href="images/favicon.ico" />
 
-  <link rel="icon" href="images/favicon.ico">
+    <!-- See https://goo.gl/OOhYW5 -->
+    <link rel="manifest" href="manifest.json" />
 
-  <!-- See https://goo.gl/OOhYW5 -->
-  <link rel="manifest" href="manifest.json">
+    <!-- See https://goo.gl/qRE0vM -->
+    <meta name="theme-color" content="#3f51b5" />
 
-  <!-- See https://goo.gl/qRE0vM -->
-  <meta name="theme-color" content="#3f51b5">
+    <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="application-name" content="Soundboard" />
 
-  <!-- Add to homescreen for Chrome on Android. Fallback for manifest.json -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="application-name" content="Soundboard">
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Soundboard" />
 
-  <!-- Add to homescreen for Safari on iOS -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Soundboard">
+    <!-- Homescreen icons -->
+    <link rel="apple-touch-icon" href="images/manifest/icon-48x48.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="images/manifest/icon-72x72.png" />
+    <link rel="apple-touch-icon" sizes="96x96" href="images/manifest/icon-96x96.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="images/manifest/icon-144x144.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="images/manifest/icon-192x192.png" />
 
-  <!-- Homescreen icons -->
-  <link rel="apple-touch-icon" href="images/manifest/icon-48x48.png">
-  <link rel="apple-touch-icon" sizes="72x72" href="images/manifest/icon-72x72.png">
-  <link rel="apple-touch-icon" sizes="96x96" href="images/manifest/icon-96x96.png">
-  <link rel="apple-touch-icon" sizes="144x144" href="images/manifest/icon-144x144.png">
-  <link rel="apple-touch-icon" sizes="192x192" href="images/manifest/icon-192x192.png">
+    <!-- Tile icon for Windows 8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="images/manifest/icon-144x144.png" />
+    <meta name="msapplication-TileColor" content="#3f51b5" />
+    <meta name="msapplication-tap-highlight" content="no" />
 
-  <!-- Tile icon for Windows 8 (144x144 + tile color) -->
-  <meta name="msapplication-TileImage" content="images/manifest/icon-144x144.png">
-  <meta name="msapplication-TileColor" content="#3f51b5">
-  <meta name="msapplication-tap-highlight" content="no">
+    <!-- Default twitter cards -->
+    <meta name="twitter:card" content="A very simple drag and drop soundboard app" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Soundboard" />
+    <meta property="og:image" content="images/manifest/icon-144x144.png" />
 
-  <!-- Default twitter cards -->
-  <meta name="twitter:card" content="A very simple drag and drop soundboard app">
-  <meta property="og:type" content="website">
-  <meta property="og:site_name" content="Soundboard">
-  <meta property="og:image" content="images/manifest/icon-144x144.png" />
+    <script src="js/app/index.js" type="module"></script>
+    <link href="css/index.css" rel="stylesheet" />
+  </head>
 
-  <script src="js/app/index.js" type="module"></script>
-  <link href="css/index.css" rel="stylesheet" />
-</head>
+  <body>
+    <noscript> Please enable JavaScript to use this app. </noscript>
 
-<body>
-  <noscript>
-    Please enable JavaScript to use this app.
-  </noscript>
+    <nav>
+      <img src="images/manifest/icon-192x192.png" />
+      <a href="https://www.github.com/timendus/soundboard">Soundboard</a>
+      <input type="range" id="volume" min="0" max="1" step="0.01" value="1" title="Volume" />
+      <button id="clear" title="Clear">
+        <i class="icon">🗑️</i>
+        <p>Clear</p>
+      </button>
+      <button id="load" title="Load">
+        <i class="icon">📂</i>
+        <p>Load</p>
+      </button>
+      <button id="save" title="Save">
+        <i class="icon">💾</i>
+        <p>Save</p>
+      </button>
+      <button id="add-row" title="Add row">
+        <i class="icon">🮒</i>
+        <p>Add row</p>
+      </button>
+      <button id="add-col" title="Add column">
+        <i class="icon">🮔</i>
+        <p>Add column</p>
+      </button>
+      <div>
+        <button id="settings" title="Config">
+          <i class="icon">🔧</i>
+          <p>Config</p>
+        </button>
+      </div>
+    </nav>
 
-  <nav>
-    <img src="images/manifest/icon-192x192.png" />
-    <a href="https://www.github.com/timendus/soundboard">Soundboard</a>
-    <input type="range" id="volume" min="0" max="1" step="0.01" value="1">
-    <button id="add-row">Add row</button>
-    <button id="add-col">Add column</button>
-    <button id="settings">🔧</button>
-  </nav>
-
-  <section id="board" class="board"></section>
-</body>
-
+    <section id="board" class="board">
+      <p>Loading...</p>
+    </section>
+  </body>
 </html>

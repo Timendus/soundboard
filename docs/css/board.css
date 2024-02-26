@@ -22,4 +22,7 @@
     }
   }
 
+  & p {
+    text-align: center;
+  }
 }

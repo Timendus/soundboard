@@ -1,4 +1,4 @@
-@import 'colours.css';
+@import "colours.css";
 
 html,
 body {
@@ -13,4 +13,10 @@ body {
   -webkit-font-smoothing: antialiased;
   background-color: var(--background-colour);
   color: var(--text-colour);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
