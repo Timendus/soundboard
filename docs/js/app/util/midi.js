@@ -1,28 +1,26 @@
 export default class Midi {
-
   constructor() {
-    if (!navigator.requestMIDIAccess)
-      return console.log("🎹 MIDI not available");
+    if (!navigator.requestMIDIAccess) return console.log("🎹 MIDI not available");
 
-    navigator.requestMIDIAccess()
-      .then(access => {
-        access.inputs.forEach(input => this._connectDevice(input));
+    navigator
+      .requestMIDIAccess()
+      .then((access) => {
+        access.inputs.forEach((input) => this._connectDevice(input));
 
-        access.addEventListener('statechange', e => {
+        access.addEventListener("statechange", (e) => {
           const device = e.port;
-          if (device.type !== 'input') return;
+          if (device.type !== "input") return;
 
-          if (device.state === 'disconnected')
+          if (device.state === "disconnected")
             console.log(`🎹 Disconnected MIDI device '${device.manufacturer} ${device.name}'`);
 
-          if (device.state === 'connected')
+          if (device.state === "connected")
             console.log(`🎹 Connected MIDI device '${device.manufacturer} ${device.name}'`);
         });
 
-        if (access.inputs.size === 0)
-          console.log("🎹 No MIDI devices found");
+        if (access.inputs.size === 0) console.log("🎹 No MIDI devices found");
       })
-      .catch(failure => {
+      .catch((failure) => {
         console.log("🎹 Can't initialize MIDI", failure);
       });
   }
@@ -45,15 +43,13 @@ export default class Midi {
   }
 
   _connectDevice(device) {
-    device.addEventListener('midimessage', midiEvent => {
+    device.addEventListener("midimessage", (midiEvent) => {
       const command = midiEvent.data[0];
       const note = midiEvent.data[1];
-      const velocity = (midiEvent.data.length > 2) ? midiEvent.data[2] : 0;
+      const velocity = midiEvent.data.length > 2 ? midiEvent.data[2] : 0;
 
-      if (command === 144 && velocity > 0)
-        this._keyDownHandler(note);
-      if (command === 144 && velocity < 0 || command === 128)
-        this._keyUpHandler(note);
+      if (command === 144 && velocity > 0) this._keyDownHandler(note);
+      if ((command === 144 && velocity < 0) || command === 128) this._keyUpHandler(note);
     });
   }
 
@@ -69,5 +65,4 @@ export default class Midi {
   _keyUpHandler(note) {
     if (this._keyUp) this._keyUp(note);
   }
-
 }

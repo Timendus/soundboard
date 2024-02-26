@@ -1,4 +1,4 @@
-@import 'colours.css';
+@import "colours.css";
 
 .sound {
   display: flex;
@@ -113,15 +113,15 @@
       }
 
       &.retrigger:before {
-        content: '-';
+        content: "-";
       }
 
       &.oneshot:before {
-        content: '|';
+        content: "|";
       }
 
       &.gate:before {
-        content: 'o';
+        content: "o";
       }
 
       &.colour {
@@ -159,7 +159,7 @@
         background-color: var(--play-mode-button-active);
 
         &:not(.assigned):before {
-          content: '⌨︎';
+          content: "⌨︎";
           margin-left: -2px;
         }
       }
@@ -192,5 +192,4 @@
       }
     }
   }
-
 }

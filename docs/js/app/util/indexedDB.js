@@ -20,7 +20,6 @@
  */
 
 export default class IndexedDB {
-
   constructor(db, name) {
     this._db = db;
     this._name = name;
@@ -29,12 +28,12 @@ export default class IndexedDB {
   static async connect(name) {
     return new Promise((resolve, reject) => {
       const dbOpenRequest = indexedDB.open(name, 4);
-      dbOpenRequest.addEventListener('error', reject);
-      dbOpenRequest.addEventListener('upgradeneeded', (event) => {
+      dbOpenRequest.addEventListener("error", reject);
+      dbOpenRequest.addEventListener("upgradeneeded", (event) => {
         const db = event.target.result;
-        const objectStore = db.createObjectStore(name, { keyPath: 'key' });
+        const objectStore = db.createObjectStore(name, { keyPath: "key" });
       });
-      dbOpenRequest.addEventListener('success', (event) => {
+      dbOpenRequest.addEventListener("success", (event) => {
         resolve(new IndexedDB(dbOpenRequest.result, name));
       });
     });
@@ -42,19 +41,19 @@ export default class IndexedDB {
 
   async setItem(key, value) {
     return new Promise((resolve, reject) => {
-      const transaction = this._db.transaction(this._name, 'readwrite');
-      transaction.addEventListener('complete', () => resolve());
-      transaction.addEventListener('error', reject);
+      const transaction = this._db.transaction(this._name, "readwrite");
+      transaction.addEventListener("complete", () => resolve());
+      transaction.addEventListener("error", reject);
       const objectStore = transaction.objectStore(this._name);
       const objectStoreRequest = objectStore.get(key);
-      objectStoreRequest.addEventListener('error', reject);
-      objectStoreRequest.addEventListener('success', () => {
+      objectStoreRequest.addEventListener("error", reject);
+      objectStoreRequest.addEventListener("success", () => {
         const data = objectStoreRequest.result;
         if (data) {
           data.value = value;
           const updateValueRequest = objectStore.put(data);
-          updateValueRequest.addEventListener('error', reject);
-          updateValueRequest.addEventListener('success', () => resolve());
+          updateValueRequest.addEventListener("error", reject);
+          updateValueRequest.addEventListener("success", () => resolve());
         } else {
           objectStore.add({ key, value });
           resolve();
@@ -65,12 +64,12 @@ export default class IndexedDB {
 
   async getItem(key) {
     return new Promise((resolve, reject) => {
-      const transaction = this._db.transaction(this._name, 'readonly');
-      transaction.addEventListener('error', reject);
+      const transaction = this._db.transaction(this._name, "readonly");
+      transaction.addEventListener("error", reject);
       const objectStore = transaction.objectStore(this._name);
       const objectStoreRequest = objectStore.get(key);
-      objectStoreRequest.addEventListener('error', reject);
-      objectStoreRequest.addEventListener('success', () => {
+      objectStoreRequest.addEventListener("error", reject);
+      objectStoreRequest.addEventListener("success", () => {
         resolve(objectStoreRequest.result?.value);
       });
     });
@@ -78,11 +77,10 @@ export default class IndexedDB {
 
   async removeItem(key) {
     return new Promise((resolve, reject) => {
-      const transaction = this._db.transaction(this._name, 'readwrite');
-      transaction.addEventListener('complete', () => resolve());
-      transaction.addEventListener('error', reject);
+      const transaction = this._db.transaction(this._name, "readwrite");
+      transaction.addEventListener("complete", () => resolve());
+      transaction.addEventListener("error", reject);
       transaction.objectStore(this._name).delete(key);
     });
   }
-
 }

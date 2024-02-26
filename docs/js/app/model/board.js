@@ -1,7 +1,6 @@
 import Sound from "./sound.js";
 
 export default class Board {
-
   constructor() {
     this._rows = 3;
     this._cols = 3;
@@ -56,25 +55,23 @@ export default class Board {
   }
 
   placeSound(x, y, sound) {
-    if (!this._validCoords(x, y))
-      throw new Error("Out of bounds");
+    if (!this._validCoords(x, y)) throw new Error("Out of bounds");
     this._grid[y][x] = sound;
     sound.x = x;
     sound.y = y;
   }
 
   getSound(x, y) {
-    if (!this._validCoords(x, y))
-      throw new Error("Out of bounds");
+    if (!this._validCoords(x, y)) throw new Error("Out of bounds");
     return this._grid[y][x];
   }
 
   getByKey(key) {
-    return this._grid.flat().find(s => s && s.key === key);
+    return this._grid.flat().find((s) => s && s.key === key);
   }
 
   allSounds() {
-    return this._grid.flat().filter(s => s);
+    return this._grid.flat().filter((s) => s);
   }
 
   resizeIfEmpty(rows, cols) {
@@ -99,7 +96,7 @@ export default class Board {
       }
     }
     return {
-      version: '1.0',
+      version: "1.0",
       rows: this._rows,
       cols: this._cols,
       sounds: soundObjects,
@@ -107,8 +104,8 @@ export default class Board {
   }
 
   static fromStorageObject(obj) {
-    if (!obj || !('version' in obj) || obj.version != '1.0')
-      throw new Error("Can't read this file.")
+    if (!obj || !("version" in obj) || obj.version != "1.0")
+      throw new Error("Can't read this file.");
     const board = new Board();
     board.cols = obj.cols;
     board.rows = obj.rows;

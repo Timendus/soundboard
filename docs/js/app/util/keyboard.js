@@ -1,8 +1,7 @@
 export default class Keyboard {
-
   constructor() {
-    window.addEventListener('keydown', e => !e.repeat && this._keyDownHandler(e.key));
-    window.addEventListener('keyup', e => !e.repeat && this._keyUpHandler(e.key));
+    window.addEventListener("keydown", (e) => !e.repeat && this._keyDownHandler(e.key));
+    window.addEventListener("keyup", (e) => !e.repeat && this._keyUpHandler(e.key));
   }
 
   register({ keyDown, keyUp }) {
@@ -34,5 +33,4 @@ export default class Keyboard {
   _keyUpHandler(key) {
     if (this._keyUp) this._keyUp(key);
   }
-
 }

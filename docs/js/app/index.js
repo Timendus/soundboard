@@ -1,18 +1,18 @@
-import Board from './model/board.js';
-import Sound from './model/sound.js';
-import Mp3File from './model/mp3file.js';
-import Midi from './util/midi.js';
-import Keyboard from './util/keyboard.js';
-import BoardRenderer from './board-renderer.js';
-import IndexedDB from './util/indexedDB.js';
-import './lib/thimbleful.js';
-import './util/pwa.js';
+import Board from "./model/board.js";
+import Sound from "./model/sound.js";
+import Mp3File from "./model/mp3file.js";
+import Midi from "./util/midi.js";
+import Keyboard from "./util/keyboard.js";
+import BoardRenderer from "./board-renderer.js";
+import IndexedDB from "./util/indexedDB.js";
+import "./lib/thimbleful.js";
+import "./util/pwa.js";
 
 /* Initialize all the bits and pieces */
 
 const database = await IndexedDB.connect("soundboard");
 let board = await findOrCreateBoard();
-const boardRenderer = new BoardRenderer(document.getElementById('board'), board);
+const boardRenderer = new BoardRenderer(document.getElementById("board"), board);
 const clickHandler = Thimbleful.Click.instance();
 const dragDrop = Thimbleful.FileTarget.instance();
 const midi = new Midi();
@@ -27,7 +27,7 @@ boardRenderer.render();
 /* Register all event handlers */
 
 // Loading sounds into the soundboard
-dragDrop.register('.sound:not(.loaded)', (file, data, e) => {
+dragDrop.register(".sound:not(.loaded)", (file, data, e) => {
   const mp3File = new Mp3File(file, data);
 
   // Find our sound
@@ -49,70 +49,106 @@ dragDrop.register('.sound:not(.loaded)', (file, data, e) => {
 });
 
 // Make the soundboard make sounds
-clickHandler.register('body:not(.settings) .sound', {
-  mousedown: e => trigger(e, false, (s) => s.push()),
-  mouseup: e => trigger(e, false, (s) => s.release())
+clickHandler.register("body:not(.settings) .sound", {
+  mousedown: (e) => trigger(e, false, (s) => s.push()),
+  mouseup: (e) => trigger(e, false, (s) => s.release()),
 });
 midi.register({
-  keyDown: key => keyTrigger(key, s => s.push()),
-  keyUp: key => keyTrigger(key, s => s.release())
+  keyDown: (key) => keyTrigger(key, (s) => s.push()),
+  keyUp: (key) => keyTrigger(key, (s) => s.release()),
 });
 keyboard.register({
-  keyDown: key => keyTrigger(key, s => s.push()),
-  keyUp: key => keyTrigger(key, s => s.release())
+  keyDown: (key) => keyTrigger(key, (s) => s.push()),
+  keyUp: (key) => keyTrigger(key, (s) => s.release()),
 });
 
 // Let the volume slider control the volume
-document.getElementById('volume').addEventListener('input', e => {
+document.getElementById("volume").addEventListener("input", (e) => {
   volume = e.target.value;
-  board.allSounds().forEach(s => s.setVolume(volume));
+  board.allSounds().forEach((s) => s.setVolume(volume));
 });
 
 // Configuration
-clickHandler.register('button#clear', { click: () => {
-  board.allSounds().forEach(s => s.destroy());
-  board = new Board();
-  board.resizeIfEmpty(...rowsAndCols());
-  boardRenderer.board = board;
-  boardRenderer.render();
-  database.removeItem('autosave');
-}});
-clickHandler.register('button#load', { click: async () => {
-  const newBoard = Board.fromStorageObject(JSON.parse(await upload()));
-  board.allSounds().forEach(s => s.destroy());
-  board = newBoard;
-  boardRenderer.board = board;
-  boardRenderer.render();
-  document.querySelector('body').classList.remove('settings');
-  saveBoard("loaded save file");
-}});
-clickHandler.register('button#save', { click: () => { download('soundboard.json', JSON.stringify(board.toStorageObject())); } });
-clickHandler.register('button#add-row', { click: () => { board.addRow(); boardRenderer.render(); } });
-clickHandler.register('button#add-col', { click: () => { board.addColumn(); boardRenderer.render(); } });
-clickHandler.register('button#settings', { click: () => { document.querySelector('body').classList.toggle('settings'); } });
+clickHandler.register("button#clear", {
+  click: () => {
+    board.allSounds().forEach((s) => s.destroy());
+    board = new Board();
+    board.resizeIfEmpty(...rowsAndCols());
+    boardRenderer.board = board;
+    boardRenderer.render();
+    database.removeItem("autosave");
+  },
+});
+clickHandler.register("button#load", {
+  click: async () => {
+    const newBoard = Board.fromStorageObject(JSON.parse(await upload()));
+    board.allSounds().forEach((s) => s.destroy());
+    board = newBoard;
+    boardRenderer.board = board;
+    boardRenderer.render();
+    document.querySelector("body").classList.remove("settings");
+    saveBoard("loaded save file");
+  },
+});
+clickHandler.register("button#save", {
+  click: () => {
+    download("soundboard.json", JSON.stringify(board.toStorageObject()));
+  },
+});
+clickHandler.register("button#add-row", {
+  click: () => {
+    board.addRow();
+    boardRenderer.render();
+  },
+});
+clickHandler.register("button#add-col", {
+  click: () => {
+    board.addColumn();
+    boardRenderer.render();
+  },
+});
+clickHandler.register("button#settings", {
+  click: () => {
+    document.querySelector("body").classList.toggle("settings");
+  },
+});
 
 // Sound settings
-clickHandler.register('button[data-mode=retrigger]', { click: e => { trigger(e, true, s => {
-  s.setPlayModeRetrigger();
-  saveBoard("play mode was changed");
-}); } });
-clickHandler.register('button[data-mode=oneshot]', { click: e => { trigger(e, true, s => {
-  s.setPlayModeOneShot();
-  saveBoard("play mode was changed");
-}); } });
-clickHandler.register('button[data-mode=gate]', { click: e => { trigger(e, true, s => {
-  s.setPlayModeGate();
-  saveBoard("play mode was changed");
-}); } });
+clickHandler.register("button[data-mode=retrigger]", {
+  click: (e) => {
+    trigger(e, true, (s) => {
+      s.setPlayModeRetrigger();
+      saveBoard("play mode was changed");
+    });
+  },
+});
+clickHandler.register("button[data-mode=oneshot]", {
+  click: (e) => {
+    trigger(e, true, (s) => {
+      s.setPlayModeOneShot();
+      saveBoard("play mode was changed");
+    });
+  },
+});
+clickHandler.register("button[data-mode=gate]", {
+  click: (e) => {
+    trigger(e, true, (s) => {
+      s.setPlayModeGate();
+      saveBoard("play mode was changed");
+    });
+  },
+});
 
-clickHandler.register('button.colour', { click: setColour });
-clickHandler.register('button.save-colour', { click: setColour });
-clickHandler.register('button.show-modes', { click: e => show(e, '.modes') });
-clickHandler.register('button.show-colours', { click: e => show(e, '.colours') });
-clickHandler.register('button.assign-key', { click: e => captureKey(e) });
+clickHandler.register("button.colour", { click: setColour });
+clickHandler.register("button.save-colour", { click: setColour });
+clickHandler.register("button.show-modes", { click: (e) => show(e, ".modes") });
+clickHandler.register("button.show-colours", {
+  click: (e) => show(e, ".colours"),
+});
+clickHandler.register("button.assign-key", { click: (e) => captureKey(e) });
 
 // Resize the soundboard when resizing the window
-window.addEventListener('resize', () => {
+window.addEventListener("resize", () => {
   board.resizeIfEmpty(...rowsAndCols());
   boardRenderer.render();
 });
@@ -121,10 +157,7 @@ window.addEventListener('resize', () => {
 
 // Calculate how many rows and columns we can nicely fit on screen
 function rowsAndCols() {
-  return [
-    Math.round(window.innerHeight / 150),
-    Math.round(window.innerWidth / 200)
-  ];
+  return [Math.round(window.innerHeight / 150), Math.round(window.innerWidth / 200)];
 }
 
 // Load board from IndexedDB or create a new one
@@ -133,7 +166,7 @@ async function findOrCreateBoard() {
     const board = Board.fromStorageObject(await database.getItem("autosave"));
     console.info("💾 Loaded board from IndexedDB");
     return board;
-  } catch(e) {
+  } catch (e) {
     console.info("💾 Started with new board");
     return new Board();
   }
@@ -141,28 +174,28 @@ async function findOrCreateBoard() {
 
 // Store the current soundboard to IndexedDB
 async function saveBoard(reason) {
-  await database.setItem('autosave', board.toStorageObject());
+  await database.setItem("autosave", board.toStorageObject());
   console.info("💾 Saved board to IndexedDB because:", reason);
 }
 
 // Push a download to the user ("Save as")
 function download(filename, contents) {
-  if ( !filename || !contents ) return;
-  const anchor = document.createElement('a');
+  if (!filename || !contents) return;
+  const anchor = document.createElement("a");
   anchor.download = filename;
-  anchor.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(contents);
+  anchor.href = "data:text/plain;charset=utf-8," + encodeURIComponent(contents);
   anchor.click();
 }
 
 // Get an upload from the user ("Open file")
 async function upload() {
   return new Promise((resolve, reject) => {
-    const input = document.createElement('input');
-    input.type  = 'file';
-    input.addEventListener('change', (c) => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.addEventListener("change", (c) => {
       if (c.target.files.length != 1) reject("No file selected");
       const reader = new FileReader();
-      reader.addEventListener('load', (e) => resolve(e.target.result));
+      reader.addEventListener("load", (e) => resolve(e.target.result));
       reader.readAsText(c.target.files[0]);
     });
     input.click();
@@ -171,9 +204,9 @@ async function upload() {
 
 // Where did we click "in the grid"?
 function _soundFromEvent(e) {
-  const soundElm = e.target.closest('.sound');
-  const x = soundElm.getAttribute('data-x');
-  const y = soundElm.getAttribute('data-y');
+  const soundElm = e.target.closest(".sound");
+  const x = soundElm.getAttribute("data-x");
+  const y = soundElm.getAttribute("data-y");
   return [board.getSound(x, y), x, y];
 }
 
@@ -192,12 +225,12 @@ function keyTrigger(key, callback) {
 
 function setColour(e) {
   const [sound] = _soundFromEvent(e);
-  if (!sound) { return; }
+  if (!sound) return;
   let colourValue;
-  if (e.target.classList.contains('save-colour')) {
-    colourValue = e.target.closest('.sound').querySelector('input').value;
+  if (e.target.classList.contains("save-colour")) {
+    colourValue = e.target.closest(".sound").querySelector("input").value;
   } else {
-    colourValue = window.getComputedStyle(e.target).getPropertyValue('background-color');
+    colourValue = window.getComputedStyle(e.target).getPropertyValue("background-color");
   }
   sound.colour = colourValue;
   boardRenderer.render();
@@ -205,13 +238,13 @@ function setColour(e) {
 }
 
 function show(e, className) {
-  e.target.closest('.sound').querySelector(className).classList.add('active');
+  e.target.closest(".sound").querySelector(className).classList.add("active");
 }
 
 function captureKey(e) {
-  show(e, '.keys');
+  show(e, ".keys");
   Promise.race([keyboard.getNextKeyPress(), midi.getNextKeyPress()])
-    .then(key => {
+    .then((key) => {
       let [sound] = _soundFromEvent(e);
       sound.key = key;
     })

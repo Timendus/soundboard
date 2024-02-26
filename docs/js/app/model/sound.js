@@ -19,22 +19,14 @@ export default class Sound {
     if (!this._playerLoaded) {
       this._player.src = this._mp3File.data;
       this._player.load();
-      this._player.addEventListener('ended', () => this._stopAnimation());
+      this._player.addEventListener("ended", () => this._stopAnimation());
       requestAnimationFrame(() => this._renderProgress());
       this._playerLoaded = true;
     }
   }
 
   _randomColour() {
-    let colours = [
-      '#26748E',
-      '#D35528',
-      '#934873',
-      '#00B9AE',
-      '#F9C80E',
-      '#48BA66',
-      '#FF9C4C'
-    ];
+    let colours = ["#26748E", "#D35528", "#934873", "#00B9AE", "#F9C80E", "#48BA66", "#FF9C4C"];
     return colours[Math.floor(Math.random() * colours.length)];
   }
 
@@ -48,11 +40,12 @@ export default class Sound {
 
   _renderProgress() {
     if (!this._alive) return;
-    if (!this._playing)
-      return requestAnimationFrame(() => this._renderProgress());
+    if (!this._playing) return requestAnimationFrame(() => this._renderProgress());
 
-    const progress = document.querySelector(`div.sound[data-x='${this.x}'][data-y='${this.y}'] .progress .bar`);
-    const percentage = this._player.currentTime / this._player.duration * 100;
+    const progress = document.querySelector(
+      `div.sound[data-x='${this.x}'][data-y='${this.y}'] .progress .bar`,
+    );
+    const percentage = (this._player.currentTime / this._player.duration) * 100;
     progress.style.background = `linear-gradient(90deg, white 0%, white ${percentage}%, rgba(255,255,255,0.4) ${percentage}%, rgba(255,255,255,0.4) 100%)`;
     requestAnimationFrame(() => this._renderProgress());
   }
