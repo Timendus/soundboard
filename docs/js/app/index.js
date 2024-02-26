@@ -5,6 +5,7 @@ import Midi from "./util/midi.js";
 import Keyboard from "./util/keyboard.js";
 import BoardRenderer from "./board-renderer.js";
 import IndexedDB from "./util/indexedDB.js";
+import files from "./util/files.js";
 import "./lib/thimbleful.js";
 import "./util/pwa.js";
 
@@ -12,17 +13,26 @@ import "./util/pwa.js";
 
 const database = await IndexedDB.connect("soundboard");
 let board = await findOrCreateBoard();
-const boardRenderer = new BoardRenderer(document.getElementById("board"), board);
+const boardRenderer = new BoardRenderer(document.getElementById("board"));
 const clickHandler = Thimbleful.Click.instance();
 const dragDrop = Thimbleful.FileTarget.instance();
 const midi = new Midi();
 const keyboard = new Keyboard();
 let volume = 1;
 
+const fileTypes = [
+  {
+    description: "Soundboard save file",
+    accept: {
+      "text/plain": [".soundboard"],
+    },
+  },
+];
+
 /* Render the board to the DOM */
 
 board.resizeIfEmpty(...rowsAndCols());
-boardRenderer.render();
+boardRenderer.render(board);
 
 /* Register all event handlers */
 
@@ -44,7 +54,7 @@ dragDrop.register(".sound:not(.loaded)", (file, data, e) => {
   // Rerender the board (I think the timeout had something to do with the drag
   // and drop stuff not removing the hover class otherwise? Not sure anymore.)
   window.setTimeout(() => {
-    boardRenderer.render();
+    boardRenderer.render(board);
   }, 10);
 });
 
@@ -74,37 +84,47 @@ clickHandler.register("button#clear", {
     board.allSounds().forEach((s) => s.destroy());
     board = new Board();
     board.resizeIfEmpty(...rowsAndCols());
-    boardRenderer.board = board;
-    boardRenderer.render();
+    boardRenderer.render(board);
     database.removeItem("autosave");
   },
 });
 clickHandler.register("button#load", {
   click: async () => {
-    const newBoard = Board.fromStorageObject(JSON.parse(await upload()));
+    const newBoard = Board.fromStorageObject(
+      JSON.parse(
+        await files.load({
+          types: fileTypes,
+          startIn: "music",
+        }),
+      ),
+    );
     board.allSounds().forEach((s) => s.destroy());
     board = newBoard;
-    boardRenderer.board = board;
-    boardRenderer.render();
+    boardRenderer.render(board);
     document.querySelector("body").classList.remove("settings");
     saveBoard("loaded save file");
   },
 });
 clickHandler.register("button#save", {
   click: () => {
-    download("soundboard.json", JSON.stringify(board.toStorageObject()));
+    files.save({
+      suggestedName: "Untitled.soundboard",
+      contents: JSON.stringify(board.toStorageObject()),
+      types: fileTypes,
+      startIn: "music",
+    });
   },
 });
 clickHandler.register("button#add-row", {
   click: () => {
     board.addRow();
-    boardRenderer.render();
+    boardRenderer.render(board);
   },
 });
 clickHandler.register("button#add-col", {
   click: () => {
     board.addColumn();
-    boardRenderer.render();
+    boardRenderer.render(board);
   },
 });
 clickHandler.register("button#settings", {
@@ -150,7 +170,7 @@ clickHandler.register("button.assign-key", { click: (e) => captureKey(e) });
 // Resize the soundboard when resizing the window
 window.addEventListener("resize", () => {
   board.resizeIfEmpty(...rowsAndCols());
-  boardRenderer.render();
+  boardRenderer.render(board);
 });
 
 /* Helper functions */
@@ -178,30 +198,6 @@ async function saveBoard(reason) {
   console.info("💾 Saved board to IndexedDB because:", reason);
 }
 
-// Push a download to the user ("Save as")
-function download(filename, contents) {
-  if (!filename || !contents) return;
-  const anchor = document.createElement("a");
-  anchor.download = filename;
-  anchor.href = "data:text/plain;charset=utf-8," + encodeURIComponent(contents);
-  anchor.click();
-}
-
-// Get an upload from the user ("Open file")
-async function upload() {
-  return new Promise((resolve, reject) => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.addEventListener("change", (c) => {
-      if (c.target.files.length != 1) reject("No file selected");
-      const reader = new FileReader();
-      reader.addEventListener("load", (e) => resolve(e.target.result));
-      reader.readAsText(c.target.files[0]);
-    });
-    input.click();
-  });
-}
-
 // Where did we click "in the grid"?
 function _soundFromEvent(e) {
   const soundElm = e.target.closest(".sound");
@@ -214,7 +210,7 @@ function trigger(e, redraw, callback) {
   const [sound] = _soundFromEvent(e);
   if (!sound) return;
   callback(sound);
-  if (redraw) boardRenderer.render();
+  if (redraw) boardRenderer.render(board);
 }
 
 function keyTrigger(key, callback) {
@@ -233,7 +229,7 @@ function setColour(e) {
     colourValue = window.getComputedStyle(e.target).getPropertyValue("background-color");
   }
   sound.colour = colourValue;
-  boardRenderer.render();
+  boardRenderer.render(board);
   saveBoard("colour was changed");
 }
 
@@ -251,7 +247,7 @@ function captureKey(e) {
     .finally(() => {
       keyboard.cancelGetKeyPress();
       midi.cancelGetKeyPress();
-      boardRenderer.render();
+      boardRenderer.render(board);
       saveBoard("key binding was changed");
     });
 }
