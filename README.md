@@ -37,8 +37,9 @@ or manually add a row or a column if you run out of space. And in settings mode
 you can change the playback mode, colour and associated keyboard or MIDI key of
 your sound blocks.
 
-![Settings mode](screenshots/settings.png "Settings mode")
 _Screenshot is outdated, sorry for that 🙈_
+
+![Settings mode](screenshots/settings.png "Settings mode")
 
 ### Playback modes
 
