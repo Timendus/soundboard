@@ -166,6 +166,14 @@ clickHandler.register("button.show-colours", {
   click: (e) => show(e, ".colours"),
 });
 clickHandler.register("button.assign-key", { click: (e) => captureKey(e) });
+clickHandler.register("button.delete-sound", {
+  click: (e) => {
+    const [_, x, y] = _soundFromEvent(e);
+    board.removeSound(x, y);
+    boardRenderer.render(board);
+    saveBoard("sound was removed");
+  },
+});
 
 // Resize the soundboard when resizing the window
 window.addEventListener("resize", () => {

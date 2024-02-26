@@ -66,6 +66,11 @@ export default class Board {
     return this._grid[y][x];
   }
 
+  removeSound(x, y) {
+    this.getSound(x, y).destroy();
+    this._grid[y][x] = null;
+  }
+
   getByKey(key) {
     return this._grid.flat().find((s) => s && s.key === key);
   }
