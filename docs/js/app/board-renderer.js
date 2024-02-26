@@ -63,7 +63,6 @@ export default class BoardRenderer {
                   <button class='colour yellow'></button>
                   <button class='colour green'></button>
                   <button class='colour orange'></button>
-                  <!--<input type="text" length="10" value="${colour}"/><button class='save-colour'>Save</button>-->
                 </div>
                 <button class='assign-key ${sound.key ? "assigned" : ""}'>${
                     sound.key ? sound.key : ""

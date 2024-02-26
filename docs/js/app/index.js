@@ -41,7 +41,7 @@ dragDrop.register(".sound:not(.loaded)", (file, data, e) => {
   const mp3File = new Mp3File(file, data);
 
   // Find our sound
-  let [sound, x, y] = _soundFromEvent(e);
+  let [sound, x, y] = soundFromEvent(e);
   sound = sound || new Sound();
 
   // Update that position
@@ -64,12 +64,12 @@ clickHandler.register("body:not(.settings) .sound", {
   mouseup: (e) => trigger(e, false, (s) => s.release()),
 });
 midi.register({
-  keyDown: (key) => keyTrigger(key, (s) => s.push()),
-  keyUp: (key) => keyTrigger(key, (s) => s.release()),
+  keyDown: (key) => board.getByKey(key)?.push(),
+  keyUp: (key) => board.getByKey(key)?.release(),
 });
 keyboard.register({
-  keyDown: (key) => keyTrigger(key, (s) => s.push()),
-  keyUp: (key) => keyTrigger(key, (s) => s.release()),
+  keyDown: (key) => board.getByKey(key)?.push(),
+  keyUp: (key) => board.getByKey(key)?.release(),
 });
 
 // Let the volume slider control the volume
@@ -78,7 +78,7 @@ document.getElementById("volume").addEventListener("input", (e) => {
   board.allSounds().forEach((s) => s.setVolume(volume));
 });
 
-// Configuration
+// "Navigation" buttons
 clickHandler.register("button#clear", {
   click: () => {
     board.allSounds().forEach((s) => s.destroy());
@@ -134,6 +134,9 @@ clickHandler.register("button#settings", {
 });
 
 // Sound settings
+clickHandler.register("button.show-modes", {
+  click: (e) => show(e, ".modes"),
+});
 clickHandler.register("button[data-mode=retrigger]", {
   click: (e) => {
     trigger(e, true, (s) => {
@@ -159,13 +162,35 @@ clickHandler.register("button[data-mode=gate]", {
   },
 });
 
-clickHandler.register("button.colour", { click: setColour });
-clickHandler.register("button.save-colour", { click: setColour });
-clickHandler.register("button.show-modes", { click: (e) => show(e, ".modes") });
 clickHandler.register("button.show-colours", {
   click: (e) => show(e, ".colours"),
 });
-clickHandler.register("button.assign-key", { click: (e) => captureKey(e) });
+clickHandler.register("button.colour", {
+  click: (e) => {
+    const [sound] = soundFromEvent(e);
+    sound.colour = window.getComputedStyle(e.target).getPropertyValue("background-color");
+    boardRenderer.render(board);
+    saveBoard("colour was changed");
+  },
+});
+
+clickHandler.register("button.assign-key", {
+  click: (e) => {
+    show(e, ".keys");
+    Promise.race([keyboard.getNextKeyPress(), midi.getNextKeyPress()])
+      .then((key) => {
+        let [sound] = soundFromEvent(e);
+        sound.key = key;
+      })
+      .finally(() => {
+        keyboard.cancelGetKeyPress();
+        midi.cancelGetKeyPress();
+        boardRenderer.render(board);
+        saveBoard("key binding was changed");
+      });
+  },
+});
+
 clickHandler.register("button.delete-sound", {
   click: (e) => {
     const [_, x, y] = _soundFromEvent(e);
@@ -207,7 +232,7 @@ async function saveBoard(reason) {
 }
 
 // Where did we click "in the grid"?
-function _soundFromEvent(e) {
+function soundFromEvent(e) {
   const soundElm = e.target.closest(".sound");
   const x = soundElm.getAttribute("data-x");
   const y = soundElm.getAttribute("data-y");
@@ -215,47 +240,8 @@ function _soundFromEvent(e) {
 }
 
 function trigger(e, redraw, callback) {
-  const [sound] = _soundFromEvent(e);
+  const [sound] = soundFromEvent(e);
   if (!sound) return;
   callback(sound);
   if (redraw) boardRenderer.render(board);
-}
-
-function keyTrigger(key, callback) {
-  const sound = board.getByKey(key);
-  if (!sound) return;
-  callback(sound);
-}
-
-function setColour(e) {
-  const [sound] = _soundFromEvent(e);
-  if (!sound) return;
-  let colourValue;
-  if (e.target.classList.contains("save-colour")) {
-    colourValue = e.target.closest(".sound").querySelector("input").value;
-  } else {
-    colourValue = window.getComputedStyle(e.target).getPropertyValue("background-color");
-  }
-  sound.colour = colourValue;
-  boardRenderer.render(board);
-  saveBoard("colour was changed");
-}
-
-function show(e, className) {
-  e.target.closest(".sound").querySelector(className).classList.add("active");
-}
-
-function captureKey(e) {
-  show(e, ".keys");
-  Promise.race([keyboard.getNextKeyPress(), midi.getNextKeyPress()])
-    .then((key) => {
-      let [sound] = _soundFromEvent(e);
-      sound.key = key;
-    })
-    .finally(() => {
-      keyboard.cancelGetKeyPress();
-      midi.cancelGetKeyPress();
-      boardRenderer.render(board);
-      saveBoard("key binding was changed");
-    });
 }
