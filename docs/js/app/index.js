@@ -40,8 +40,6 @@ window.addEventListener('load', function () {
 
     // Update that position
     sound.mp3File = mp3File;
-    sound.x = x;
-    sound.y = y;
     sound.setVolume(volume);
     board.placeSound(x, y, sound);
 
@@ -130,7 +128,16 @@ window.addEventListener('load', function () {
   clickHandler.register('button.show-colours', { click: e => show(e, '.colours') });
   clickHandler.register('button.assign-key', { click: e => captureKey(e) });
 
-  // Navigation
+  // Configuration
+  clickHandler.register('button#load', { click: async () => {
+    const newBoard = Board.fromStorageObject(JSON.parse(await upload()));
+    board.allSounds().forEach(s => s.destroy());
+    board = newBoard;
+    boardRenderer.board = board;
+    boardRenderer.render();
+    document.querySelector('body').classList.remove('settings');
+  }});
+  clickHandler.register('button#save', { click: () => { download('soundboard.json', JSON.stringify(board.toStorageObject())); } });
   clickHandler.register('button#add-row', { click: () => { board.addRow(); boardRenderer.render(); } });
   clickHandler.register('button#add-col', { click: () => { board.addColumn(); boardRenderer.render(); } });
   clickHandler.register('button#settings', { click: () => { document.querySelector('body').classList.toggle('settings'); } });
@@ -138,3 +145,25 @@ window.addEventListener('load', function () {
   boardRenderer.render();
 
 });
+
+function download(filename, contents) {
+  if ( !filename || !contents ) return;
+  const anchor = document.createElement('a');
+  anchor.download = filename;
+  anchor.href = 'data:text/plain;charset=utf-8,' + encodeURIComponent(contents);
+  anchor.click();
+}
+
+async function upload() {
+  return new Promise((resolve, reject) => {
+    const input = document.createElement('input');
+    input.type  = 'file';
+    input.addEventListener('change', (c) => {
+      if (c.target.files.length != 1) reject("No file selected");
+      const reader = new FileReader();
+      reader.addEventListener('load', (e) => resolve(e.target.result));
+      reader.readAsText(c.target.files[0]);
+    });
+    input.click();
+  });
+}

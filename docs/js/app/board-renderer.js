@@ -7,6 +7,10 @@ export default class BoardRenderer {
     this._board = board;
   }
 
+  set board(board) {
+    this._board = board || this._board;
+  }
+
   render() {
     let html = '';
     for (let y = 0; y < this._board.rows; y++) {

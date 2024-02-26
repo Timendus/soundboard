@@ -1,6 +1,9 @@
 import PlayMode from "./play-mode.js";
 import Mp3File from "./mp3file.js";
 
+// Note: this class also has an x and y property. And it messes with the DOM.
+// That's all a bit dirty. TODO: clean this mess up some time.
+
 export default class Sound {
   constructor() {
     this._mp3File = null;
@@ -9,6 +12,7 @@ export default class Sound {
     this._player = new Audio();
     this._playerLoaded = false;
     this._playing = false;
+    this._alive = true;
   }
 
   _loadPlayer() {
@@ -43,6 +47,7 @@ export default class Sound {
   }
 
   _renderProgress() {
+    if (!this._alive) return;
     if (!this._playing)
       return requestAnimationFrame(() => this._renderProgress());
 
@@ -165,4 +170,9 @@ export default class Sound {
     }
   }
 
+  destroy() {
+    this._player.pause();
+    this._stopAnimation();
+    this._alive = false;
+  }
 }

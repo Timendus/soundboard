@@ -62,6 +62,8 @@ export default class Board {
   placeSound(x, y, sound) {
     this._validateCoords(x, y);
     this._grid[y][x] = sound;
+    sound.x = x;
+    sound.y = y;
   }
 
   getSound(x, y) {
