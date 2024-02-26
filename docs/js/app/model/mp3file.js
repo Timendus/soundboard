@@ -13,8 +13,10 @@ export default class Mp3File {
 
     // Parse meta data
     jsmediatags.read(file, {
-      onSuccess: (tags) => this._tags = tags?.tags,
-      onError: (error) => { throw error; }
+      onSuccess: (tags) => (this._tags = tags?.tags),
+      onError: (error) => {
+        console.info(`Could not read metadata for file ${file.name}, because:`, error);
+      },
     });
   }
 
