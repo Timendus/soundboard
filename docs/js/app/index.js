@@ -39,6 +39,8 @@ dragDrop.register('.sound:not(.loaded)', (file, data, e) => {
   sound.setVolume(volume);
   board.placeSound(x, y, sound);
 
+  saveBoard("new sound was added");
+
   // Rerender the board (I think the timeout had something to do with the drag
   // and drop stuff not removing the hover class otherwise? Not sure anymore.)
   window.setTimeout(() => {
@@ -73,6 +75,7 @@ clickHandler.register('button#clear', { click: () => {
   board.resizeIfEmpty(...rowsAndCols());
   boardRenderer.board = board;
   boardRenderer.render();
+  database.removeItem('autosave');
 }});
 clickHandler.register('button#load', { click: async () => {
   const newBoard = Board.fromStorageObject(JSON.parse(await upload()));
@@ -81,6 +84,7 @@ clickHandler.register('button#load', { click: async () => {
   boardRenderer.board = board;
   boardRenderer.render();
   document.querySelector('body').classList.remove('settings');
+  saveBoard("loaded save file");
 }});
 clickHandler.register('button#save', { click: () => { download('soundboard.json', JSON.stringify(board.toStorageObject())); } });
 clickHandler.register('button#add-row', { click: () => { board.addRow(); boardRenderer.render(); } });
@@ -88,23 +92,24 @@ clickHandler.register('button#add-col', { click: () => { board.addColumn(); boar
 clickHandler.register('button#settings', { click: () => { document.querySelector('body').classList.toggle('settings'); } });
 
 // Sound settings
-clickHandler.register('button[data-mode=retrigger]', { click: e => { trigger(e, true, s => s.setPlayModeRetrigger()); } });
-clickHandler.register('button[data-mode=oneshot]', { click: e => { trigger(e, true, s => s.setPlayModeOneShot()); } });
-clickHandler.register('button[data-mode=gate]', { click: e => { trigger(e, true, s => s.setPlayModeGate()); } });
+clickHandler.register('button[data-mode=retrigger]', { click: e => { trigger(e, true, s => {
+  s.setPlayModeRetrigger();
+  saveBoard("play mode was changed");
+}); } });
+clickHandler.register('button[data-mode=oneshot]', { click: e => { trigger(e, true, s => {
+  s.setPlayModeOneShot();
+  saveBoard("play mode was changed");
+}); } });
+clickHandler.register('button[data-mode=gate]', { click: e => { trigger(e, true, s => {
+  s.setPlayModeGate();
+  saveBoard("play mode was changed");
+}); } });
 
 clickHandler.register('button.colour', { click: setColour });
 clickHandler.register('button.save-colour', { click: setColour });
 clickHandler.register('button.show-modes', { click: e => show(e, '.modes') });
 clickHandler.register('button.show-colours', { click: e => show(e, '.colours') });
 clickHandler.register('button.assign-key', { click: e => captureKey(e) });
-
-// Save soundboard when the window loses focus
-window.addEventListener('visibilitychange', async () => {
-  if (document.visibilityState == "hidden") {
-    await database.setItem('autosave', board.toStorageObject());
-    console.log("💾 Saved board to IndexedDB");
-  }
-});
 
 // Resize the soundboard when resizing the window
 window.addEventListener('resize', () => {
@@ -132,6 +137,12 @@ async function findOrCreateBoard() {
     console.info("💾 Started with new board");
     return new Board();
   }
+}
+
+// Store the current soundboard to IndexedDB
+async function saveBoard(reason) {
+  await database.setItem('autosave', board.toStorageObject());
+  console.info("💾 Saved board to IndexedDB because:", reason);
 }
 
 // Push a download to the user ("Save as")
@@ -190,6 +201,7 @@ function setColour(e) {
   }
   sound.colour = colourValue;
   boardRenderer.render();
+  saveBoard("colour was changed");
 }
 
 function show(e, className) {
@@ -207,5 +219,6 @@ function captureKey(e) {
       keyboard.cancelGetKeyPress();
       midi.cancelGetKeyPress();
       boardRenderer.render();
+      saveBoard("key binding was changed");
     });
 }
