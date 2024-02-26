@@ -35,7 +35,7 @@ You can switch the app to settings mode by clicking the wrench in the top right
 corner. In that mode you can clear the board, save it to file, load it from file
 or manually add a row or a column if you run out of space. And in settings mode
 you can change the playback mode, colour and associated keyboard or MIDI key of
-your sound blocks.
+your sound blocks. You can also remove individual sound blocks from the board.
 
 _Screenshot is outdated, sorry for that 🙈_
 
