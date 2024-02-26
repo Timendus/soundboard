@@ -20,12 +20,14 @@ const midi = new Midi();
 const keyboard = new Keyboard();
 let volume = 1;
 
-const fileTypes = [{
-  description: 'Soundboard save file',
-  accept: {
-    'text/plain': ['.soundboard'],
+const fileTypes = [
+  {
+    description: "Soundboard save file",
+    accept: {
+      "text/plain": [".soundboard"],
+    },
   },
-}];
+];
 
 /* Render the board to the DOM */
 
@@ -88,10 +90,14 @@ clickHandler.register("button#clear", {
 });
 clickHandler.register("button#load", {
   click: async () => {
-    const newBoard = Board.fromStorageObject(JSON.parse(await files.load({
-      types: fileTypes,
-      startIn: "music"
-    })));
+    const newBoard = Board.fromStorageObject(
+      JSON.parse(
+        await files.load({
+          types: fileTypes,
+          startIn: "music",
+        }),
+      ),
+    );
     board.allSounds().forEach((s) => s.destroy());
     board = newBoard;
     boardRenderer.render(board);
@@ -105,7 +111,7 @@ clickHandler.register("button#save", {
       suggestedName: "Untitled.soundboard",
       contents: JSON.stringify(board.toStorageObject()),
       types: fileTypes,
-      startIn: "music"
+      startIn: "music",
     });
   },
 });

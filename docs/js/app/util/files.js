@@ -3,12 +3,12 @@
  * and load options are "best effort". If the new File System Access API is not
  * available in the browser, it will still work, but basically ignore all your
  * preferences.
- * 
+ *
  * Usage:
- * 
+ *
  * ```javascript
  *   import files from "files.js";
- * 
+ *
  *   await files.save({
  *     suggestedName: "Untitled.extension",
  *     contents: "I'm in your files",
@@ -20,7 +20,7 @@
  *       },
  *     }],
  *   });
- * 
+ *
  *   await files.load({
  *     startIn: "documents",
  *     types: [{
