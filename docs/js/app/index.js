@@ -174,26 +174,39 @@ window.addEventListener("resize", () => {
 
 /* Helper functions */
 
-// Calculate how many rows and columns we can nicely fit on screen
+/**
+ * Calculate how many rows and columns we can nicely fit on screen
+ * @returns {number[]} Number of rows and columns
+ */
 function rowsAndCols() {
   return [Math.round(window.innerHeight / 150), Math.round(window.innerWidth / 200)];
 }
 
-// Load board from IndexedDB or create a new one
+/**
+ * Load board from IndexedDB or create a new one
+ * @returns {Promise<Board>} A promise to the soundboard to show
+ */
 async function findOrCreateBoard() {
   try {
-    return Board.fromStorageObject(await database.getItem("autosave"));
+    const savedBoard = await database.getItem("autosave");
+    return Board.fromStorageObject(savedBoard);
   } catch (e) {
     return new Board();
   }
 }
 
-// Store the current soundboard to IndexedDB
+/**
+ * Store the current soundboard to IndexedDB
+ */
 async function saveBoard() {
   await database.setItem("autosave", board.toStorageObject());
 }
 
-// Where did we click "in the grid"?
+/**
+ * Where did we click "in the grid"?
+ * @param {Event} e The click event of what was clicked on
+ * @returns {number[]} The coordinates of the clicked sound in the grid
+ */
 function coordinatesFromEvent(e) {
   const soundElm = e.target.closest(".sound");
   const x = soundElm.getAttribute("data-x");
@@ -201,11 +214,20 @@ function coordinatesFromEvent(e) {
   return [x, y];
 }
 
-// Which sound did we click on?
+/**
+ * Which sound did we click on?
+ * @param {Event} e The click event of what was clicked on
+ * @returns {Sound|null} The sound object if found
+ */
 function soundFromEvent(e) {
   return board.getSound(...coordinatesFromEvent(e));
 }
 
+/**
+ * Show the element with `className` in the same sound block
+ * @param {Event} e The click event of what was clicked on
+ * @param {string} className Name of class to look for
+ */
 function show(e, className) {
   e.target.closest(".sound").querySelector(className).classList.add("active");
 }

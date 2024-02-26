@@ -25,6 +25,11 @@ export default class IndexedDB {
     this._name = name;
   }
 
+  /**
+   * Connect to an IndexedDB database
+   * @param {string} name Name of the database and the table to use
+   * @returns {Promise<IndexedDB>} A promise to a connected database
+   */
   static async connect(name) {
     return new Promise((resolve, reject) => {
       const dbOpenRequest = indexedDB.open(name, 4);
@@ -39,6 +44,12 @@ export default class IndexedDB {
     });
   }
 
+  /**
+   * Store or overwrite the `value` for the given `key`
+   * @param {string} key Where to store the value
+   * @param {any} value The value to store
+   * @returns {Promise} A promise that resolves if the value is stored
+   */
   async setItem(key, value) {
     return new Promise((resolve, reject) => {
       const transaction = this._db.transaction(this._name, "readwrite");
@@ -62,6 +73,11 @@ export default class IndexedDB {
     });
   }
 
+  /**
+   * Get the value that belongs to this key from the database
+   * @param {string} key What to retrieve
+   * @returns {Promise<any>} A promise that resolves to the value
+   */
   async getItem(key) {
     return new Promise((resolve, reject) => {
       const transaction = this._db.transaction(this._name, "readonly");
@@ -75,6 +91,11 @@ export default class IndexedDB {
     });
   }
 
+  /**
+   * Delete the value that belongs to this key from the database
+   * @param {string} key What to delete
+   * @returns {Promise} A promise that resolves if the value is deleted
+   */
   async removeItem(key) {
     return new Promise((resolve, reject) => {
       const transaction = this._db.transaction(this._name, "readwrite");
