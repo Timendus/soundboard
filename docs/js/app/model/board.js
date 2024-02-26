@@ -79,6 +79,13 @@ export default class Board {
     return this._grid.flat().filter(s => s);
   }
 
+  resizeIfEmpty(rows, cols) {
+    if (this.allSounds().length == 0) {
+      this.rows = rows;
+      this.cols = cols;
+    }
+  }
+
   // Saving and loading
 
   toStorageObject() {

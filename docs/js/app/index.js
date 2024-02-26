@@ -144,7 +144,22 @@ window.addEventListener('load', function () {
 
   boardRenderer.render();
 
+  // Resize the soundboard when resizing the window
+  window.addEventListener('resize', () => {
+    board.resizeIfEmpty(...rowsAndCols());
+    boardRenderer.render();
+  });
 });
+
+/* Helper functions */
+
+// Calculate how many rows and columns we can nicely fit on screen
+function rowsAndCols() {
+  return [
+    Math.round(window.innerHeight / 150),
+    Math.round(window.innerWidth / 200)
+  ];
+}
 
 function download(filename, contents) {
   if ( !filename || !contents ) return;
