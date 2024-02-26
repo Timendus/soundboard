@@ -5,6 +5,7 @@ import Midi from "./util/midi.js";
 import Keyboard from "./util/keyboard.js";
 import BoardRenderer from "./board-renderer.js";
 import IndexedDB from "./util/indexedDB.js";
+import files from "./util/files.js";
 import "./lib/thimbleful.js";
 import "./util/pwa.js";
 
@@ -18,6 +19,13 @@ const dragDrop = Thimbleful.FileTarget.instance();
 const midi = new Midi();
 const keyboard = new Keyboard();
 let volume = 1;
+
+const fileTypes = [{
+  description: 'Soundboard save file',
+  accept: {
+    'text/plain': ['.soundboard'],
+  },
+}];
 
 /* Render the board to the DOM */
 
@@ -80,7 +88,10 @@ clickHandler.register("button#clear", {
 });
 clickHandler.register("button#load", {
   click: async () => {
-    const newBoard = Board.fromStorageObject(JSON.parse(await upload()));
+    const newBoard = Board.fromStorageObject(JSON.parse(await files.load({
+      types: fileTypes,
+      startIn: "music"
+    })));
     board.allSounds().forEach((s) => s.destroy());
     board = newBoard;
     boardRenderer.render(board);
@@ -90,7 +101,12 @@ clickHandler.register("button#load", {
 });
 clickHandler.register("button#save", {
   click: () => {
-    download("soundboard.json", JSON.stringify(board.toStorageObject()));
+    files.save({
+      suggestedName: "Untitled.soundboard",
+      contents: JSON.stringify(board.toStorageObject()),
+      types: fileTypes,
+      startIn: "music"
+    });
   },
 });
 clickHandler.register("button#add-row", {
@@ -174,30 +190,6 @@ async function findOrCreateBoard() {
 async function saveBoard(reason) {
   await database.setItem("autosave", board.toStorageObject());
   console.info("💾 Saved board to IndexedDB because:", reason);
-}
-
-// Push a download to the user ("Save as")
-function download(filename, contents) {
-  if (!filename || !contents) return;
-  const anchor = document.createElement("a");
-  anchor.download = filename;
-  anchor.href = "data:text/plain;charset=utf-8," + encodeURIComponent(contents);
-  anchor.click();
-}
-
-// Get an upload from the user ("Open file")
-async function upload() {
-  return new Promise((resolve, reject) => {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.addEventListener("change", (c) => {
-      if (c.target.files.length != 1) reject("No file selected");
-      const reader = new FileReader();
-      reader.addEventListener("load", (e) => resolve(e.target.result));
-      reader.readAsText(c.target.files[0]);
-    });
-    input.click();
-  });
 }
 
 // Where did we click "in the grid"?
