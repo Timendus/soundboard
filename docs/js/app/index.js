@@ -41,8 +41,8 @@ dragDrop.register(".sound:not(.loaded)", (file, data, e) => {
   const mp3File = new Mp3File(file, data);
 
   // Find our sound
-  let [sound, x, y] = soundFromEvent(e);
-  sound = sound || new Sound();
+  const [x, y] = coordinatesFromEvent(e);
+  const sound = soundFromEvent(e) || new Sound();
 
   // Update that position
   sound.mp3File = mp3File;
@@ -60,8 +60,8 @@ dragDrop.register(".sound:not(.loaded)", (file, data, e) => {
 
 // Make the soundboard make sounds
 clickHandler.register("body:not(.settings) .sound", {
-  mousedown: (e) => trigger(e, false, (s) => s.push()),
-  mouseup: (e) => trigger(e, false, (s) => s.release()),
+  mousedown: (e) => soundFromEvent(e)?.push(),
+  mouseup: (e) => soundFromEvent(e)?.release(),
 });
 midi.register({
   keyDown: (key) => board.getByKey(key)?.push(),
@@ -139,26 +139,23 @@ clickHandler.register("button.show-modes", {
 });
 clickHandler.register("button[data-mode=retrigger]", {
   click: (e) => {
-    trigger(e, true, (s) => {
-      s.setPlayModeRetrigger();
-      saveBoard("play mode was changed");
-    });
+    soundFromEvent(e)?.setPlayModeRetrigger();
+    boardRenderer.render(board);
+    saveBoard("play mode was changed");
   },
 });
 clickHandler.register("button[data-mode=oneshot]", {
   click: (e) => {
-    trigger(e, true, (s) => {
-      s.setPlayModeOneShot();
-      saveBoard("play mode was changed");
-    });
+    soundFromEvent(e)?.setPlayModeOneShot();
+    boardRenderer.render(board);
+    saveBoard("play mode was changed");
   },
 });
 clickHandler.register("button[data-mode=gate]", {
   click: (e) => {
-    trigger(e, true, (s) => {
-      s.setPlayModeGate();
-      saveBoard("play mode was changed");
-    });
+    soundFromEvent(e)?.setPlayModeGate();
+    boardRenderer.render(board);
+    saveBoard("play mode was changed");
   },
 });
 
@@ -167,8 +164,9 @@ clickHandler.register("button.show-colours", {
 });
 clickHandler.register("button.colour", {
   click: (e) => {
-    const [sound] = soundFromEvent(e);
-    sound.colour = window.getComputedStyle(e.target).getPropertyValue("background-color");
+    soundFromEvent(e).colour = window
+      .getComputedStyle(e.target)
+      .getPropertyValue("background-color");
     boardRenderer.render(board);
     saveBoard("colour was changed");
   },
@@ -179,8 +177,7 @@ clickHandler.register("button.assign-key", {
     show(e, ".keys");
     Promise.race([keyboard.getNextKeyPress(), midi.getNextKeyPress()])
       .then((key) => {
-        let [sound] = soundFromEvent(e);
-        sound.key = key;
+        soundFromEvent(e).key = key;
       })
       .finally(() => {
         keyboard.cancelGetKeyPress();
@@ -193,8 +190,7 @@ clickHandler.register("button.assign-key", {
 
 clickHandler.register("button.delete-sound", {
   click: (e) => {
-    const [_, x, y] = _soundFromEvent(e);
-    board.removeSound(x, y);
+    board.removeSound(...coordinatesFromEvent(e));
     boardRenderer.render(board);
     saveBoard("sound was removed");
   },
@@ -232,16 +228,18 @@ async function saveBoard(reason) {
 }
 
 // Where did we click "in the grid"?
-function soundFromEvent(e) {
+function coordinatesFromEvent(e) {
   const soundElm = e.target.closest(".sound");
   const x = soundElm.getAttribute("data-x");
   const y = soundElm.getAttribute("data-y");
-  return [board.getSound(x, y), x, y];
+  return [x, y];
 }
 
-function trigger(e, redraw, callback) {
-  const [sound] = soundFromEvent(e);
-  if (!sound) return;
-  callback(sound);
-  if (redraw) boardRenderer.render(board);
+// Which sound did we click on?
+function soundFromEvent(e) {
+  return board.getSound(...coordinatesFromEvent(e));
+}
+
+function show(e, className) {
+  e.target.closest(".sound").querySelector(className).classList.add("active");
 }
