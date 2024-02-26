@@ -6,6 +6,7 @@ const filesToCache = [
   'js/app/model/mp3file.js',
   'js/app/model/play-mode.js',
   'js/app/model/sound.js',
+  'js/app/util/indexedDB.js',
   'js/app/util/keyboard.js',
   'js/app/util/midi.js',
   'js/app/util/pwa.js',

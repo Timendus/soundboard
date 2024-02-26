@@ -4,18 +4,20 @@ import Mp3File from './model/mp3file.js';
 import Midi from './util/midi.js';
 import Keyboard from './util/keyboard.js';
 import BoardRenderer from './board-renderer.js';
+import IndexedDB from './util/indexedDB.js';
 import './lib/thimbleful.js';
 import './util/pwa.js';
 
 /* Initialize all the bits and pieces */
 
-  let board = new Board();
+const database = await IndexedDB.connect("soundboard");
+let board = await findOrCreateBoard();
 const boardRenderer = new BoardRenderer(document.getElementById('board'), board);
 const clickHandler = Thimbleful.Click.instance();
 const dragDrop = Thimbleful.FileTarget.instance();
 const midi = new Midi();
 const keyboard = new Keyboard();
-  let volume = 1;
+let volume = 1;
 
 /* Render the board to the DOM */
 
@@ -26,16 +28,16 @@ boardRenderer.render();
 
 // Loading sounds into the soundboard
 dragDrop.register('.sound:not(.loaded)', (file, data, e) => {
-    const mp3File = new Mp3File(file, data);
+  const mp3File = new Mp3File(file, data);
 
-    // Find our sound
-    let [sound, x, y] = _soundFromEvent(e);
-    sound = sound || new Sound();
+  // Find our sound
+  let [sound, x, y] = _soundFromEvent(e);
+  sound = sound || new Sound();
 
-    // Update that position
-    sound.mp3File = mp3File;
-    sound.setVolume(volume);
-    board.placeSound(x, y, sound);
+  // Update that position
+  sound.mp3File = mp3File;
+  sound.setVolume(volume);
+  board.placeSound(x, y, sound);
 
   // Rerender the board (I think the timeout had something to do with the drag
   // and drop stuff not removing the hover class otherwise? Not sure anymore.)
@@ -89,10 +91,18 @@ clickHandler.register('button.show-modes', { click: e => show(e, '.modes') });
 clickHandler.register('button.show-colours', { click: e => show(e, '.colours') });
 clickHandler.register('button.assign-key', { click: e => captureKey(e) });
 
+// Save soundboard when the window loses focus
+window.addEventListener('visibilitychange', async () => {
+  if (document.visibilityState == "hidden") {
+    await database.setItem('autosave', board.toStorageObject());
+    console.log("💾 Saved board to IndexedDB");
+  }
+});
+
 // Resize the soundboard when resizing the window
 window.addEventListener('resize', () => {
   board.resizeIfEmpty(...rowsAndCols());
-      boardRenderer.render();
+  boardRenderer.render();
 });
 
 /* Helper functions */
@@ -103,6 +113,18 @@ function rowsAndCols() {
     Math.round(window.innerHeight / 150),
     Math.round(window.innerWidth / 200)
   ];
+}
+
+// Load board from IndexedDB or create a new one
+async function findOrCreateBoard() {
+  try {
+    const board = Board.fromStorageObject(await database.getItem("autosave"));
+    console.info("💾 Loaded board from IndexedDB");
+    return board;
+  } catch(e) {
+    console.info("💾 Started with new board");
+    return new Board();
+  }
 }
 
 // Push a download to the user ("Save as")
@@ -135,48 +157,48 @@ function _soundFromEvent(e) {
   const x = soundElm.getAttribute('data-x');
   const y = soundElm.getAttribute('data-y');
   return [board.getSound(x, y), x, y];
-  }
+}
 
-  function trigger(e, redraw, callback) {
-    const [sound] = _soundFromEvent(e);
-    if (!sound) return;
-    callback(sound);
-    if (redraw) boardRenderer.render();
-  }
+function trigger(e, redraw, callback) {
+  const [sound] = _soundFromEvent(e);
+  if (!sound) return;
+  callback(sound);
+  if (redraw) boardRenderer.render();
+}
 
-  function keyTrigger(key, callback) {
-    const sound = board.getByKey(key);
-    if (!sound) return;
-    callback(sound);
-  }
+function keyTrigger(key, callback) {
+  const sound = board.getByKey(key);
+  if (!sound) return;
+  callback(sound);
+}
 
-  function setColour(e) {
-    const [sound] = _soundFromEvent(e);
-    if (!sound) { return; }
-    let colourValue;
-    if (e.target.classList.contains('save-colour')) {
-      colourValue = e.target.closest('.sound').querySelector('input').value;
-    } else {
-      colourValue = window.getComputedStyle(e.target).getPropertyValue('background-color');
-    }
-    sound.colour = colourValue;
-    boardRenderer.render();
+function setColour(e) {
+  const [sound] = _soundFromEvent(e);
+  if (!sound) { return; }
+  let colourValue;
+  if (e.target.classList.contains('save-colour')) {
+    colourValue = e.target.closest('.sound').querySelector('input').value;
+  } else {
+    colourValue = window.getComputedStyle(e.target).getPropertyValue('background-color');
   }
+  sound.colour = colourValue;
+  boardRenderer.render();
+}
 
-  function show(e, className) {
-    e.target.closest('.sound').querySelector(className).classList.add('active');
-  }
+function show(e, className) {
+  e.target.closest('.sound').querySelector(className).classList.add('active');
+}
 
-  function captureKey(e) {
-    show(e, '.keys');
-    Promise.race([keyboard.getNextKeyPress(), midi.getNextKeyPress()])
-      .then(key => {
-        let [sound] = _soundFromEvent(e);
-        sound.key = key;
-      })
-      .finally(() => {
-        keyboard.cancelGetKeyPress();
-        midi.cancelGetKeyPress();
-        boardRenderer.render();
-  });
+function captureKey(e) {
+  show(e, '.keys');
+  Promise.race([keyboard.getNextKeyPress(), midi.getNextKeyPress()])
+    .then(key => {
+      let [sound] = _soundFromEvent(e);
+      sound.key = key;
+    })
+    .finally(() => {
+      keyboard.cancelGetKeyPress();
+      midi.cancelGetKeyPress();
+      boardRenderer.render();
+    });
 }
