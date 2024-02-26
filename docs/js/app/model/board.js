@@ -18,15 +18,11 @@ export default class Board {
     }
   }
 
-  _validateCoords(x, y) {
-    if (x === undefined ||
-      y === undefined ||
-      x > this._cols ||
-      y > this._rows ||
-      x < 0 ||
-      y < 0) {
-      throw new Error('Out of bounds');
-    }
+  _validCoords(x, y) {
+    if (x === undefined || y === undefined) return false;
+    if (x > this._cols || y > this._rows) return false;
+    if (x < 0 || y < 0) return false;
+    return true;
   }
 
   // Public methods
@@ -60,14 +56,16 @@ export default class Board {
   }
 
   placeSound(x, y, sound) {
-    this._validateCoords(x, y);
+    if (!this._validCoords(x, y))
+      throw new Error("Out of bounds");
     this._grid[y][x] = sound;
     sound.x = x;
     sound.y = y;
   }
 
   getSound(x, y) {
-    this._validateCoords(x, y);
+    if (!this._validCoords(x, y))
+      throw new Error("Out of bounds");
     return this._grid[y][x];
   }
 
