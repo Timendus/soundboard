@@ -29,6 +29,16 @@ nav {
     font-size: 2em;
     color: white;
     text-decoration: none;
+
+    @media screen and (max-width: 600px) {
+      .settings & {
+        display: none;
+      }
+    }
+
+    @media screen and (max-width: 450px) {
+      display: none;
+    }
   }
 
   & div {
@@ -71,9 +81,10 @@ nav {
     }
     & p {
       margin: 0;
+      line-height: 0.9em;
     }
 
-    @media screen and (max-width: 900px) {
+    @media screen and (max-width: 1000px) {
       width: auto;
       padding: 0 0.5em;
 

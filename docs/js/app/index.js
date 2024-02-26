@@ -67,6 +67,13 @@ document.getElementById('volume').addEventListener('input', e => {
 });
 
 // Configuration
+clickHandler.register('button#clear', { click: () => {
+  board.allSounds().forEach(s => s.destroy());
+  board = new Board();
+  board.resizeIfEmpty(...rowsAndCols());
+  boardRenderer.board = board;
+  boardRenderer.render();
+}});
 clickHandler.register('button#load', { click: async () => {
   const newBoard = Board.fromStorageObject(JSON.parse(await upload()));
   board.allSounds().forEach(s => s.destroy());
