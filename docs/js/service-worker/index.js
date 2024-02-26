@@ -27,7 +27,7 @@ self.addEventListener("install", function (evnt) {
   evnt.waitUntil(
     caches.open("soundboard").then(function (cache) {
       return cache.addAll(filesToCache.map((file) => `../../${file}`));
-    }),
+    })
   );
 });
 
@@ -37,6 +37,6 @@ self.addEventListener("fetch", function (evnt) {
       return cache.match(evnt.request).then(function (response) {
         return response || fetch(evnt.request);
       });
-    }),
+    })
   );
 });
