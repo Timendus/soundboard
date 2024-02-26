@@ -94,7 +94,7 @@
     & button {
       width: 30px;
       height: 30px;
-      margin: 7px;
+      margin: 2px;
 
       pointer-events: all;
       cursor: pointer;
@@ -110,6 +110,9 @@
 
       &.show-colours {
         background: none;
+        &:hover {
+          background: rgba(255,255,255,0.3);
+        }
       }
 
       &.retrigger:before {
@@ -156,12 +159,15 @@
 
       &.assign-key {
         border-color: var(--play-mode-button-border-active);
-        background-color: var(--play-mode-button-active);
 
         &:not(.assigned):before {
           content: "⌨︎";
           margin-left: -2px;
         }
+      }
+
+      &:hover {
+        filter: brightness(1.1);
       }
     }
 

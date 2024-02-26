@@ -63,6 +63,7 @@ export default class BoardRenderer {
                 <div class='keys'>
                   Press a key...
                 </div>
+                <button class='delete-sound' title='Clear this sound'>🗑️</button>
               </div>
             `
                 : ""
