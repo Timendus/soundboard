@@ -79,121 +79,91 @@ document.getElementById("volume").addEventListener("input", (e) => {
 });
 
 // "Navigation" buttons
-clickHandler.register("button#clear", {
-  click: () => {
-    board.allSounds().forEach((s) => s.destroy());
-    board = new Board();
-    board.resizeIfEmpty(...rowsAndCols());
-    boardRenderer.render(board);
-    database.removeItem("autosave");
-  },
+clickHandler.register("button#clear", () => {
+  board.allSounds().forEach((s) => s.destroy());
+  board = new Board();
+  board.resizeIfEmpty(...rowsAndCols());
+  boardRenderer.render(board);
+  database.removeItem("autosave");
 });
-clickHandler.register("button#load", {
-  click: async () => {
-    const newBoard = Board.fromStorageObject(
-      JSON.parse(
-        await files.load({
-          types: fileTypes,
-          startIn: "music",
-        })
-      )
-    );
-    board.allSounds().forEach((s) => s.destroy());
-    board = newBoard;
-    boardRenderer.render(board);
-    document.querySelector("body").classList.remove("settings");
-    saveBoard("loaded save file");
-  },
+clickHandler.register("button#load", async () => {
+  const newBoard = Board.fromStorageObject(
+    JSON.parse(
+      await files.load({
+        types: fileTypes,
+        startIn: "music",
+      })
+    )
+  );
+  board.allSounds().forEach((s) => s.destroy());
+  board = newBoard;
+  boardRenderer.render(board);
+  document.querySelector("body").classList.remove("settings");
+  saveBoard("loaded save file");
 });
-clickHandler.register("button#save", {
-  click: () => {
-    files.save({
-      suggestedName: "Untitled.soundboard",
-      contents: JSON.stringify(board.toStorageObject()),
-      types: fileTypes,
-      startIn: "music",
-    });
-  },
+clickHandler.register("button#save", () => {
+  files.save({
+    suggestedName: "Untitled.soundboard",
+    contents: JSON.stringify(board.toStorageObject()),
+    types: fileTypes,
+    startIn: "music",
+  });
 });
-clickHandler.register("button#add-row", {
-  click: () => {
-    board.addRow();
-    boardRenderer.render(board);
-  },
+clickHandler.register("button#add-row", () => {
+  board.addRow();
+  boardRenderer.render(board);
 });
-clickHandler.register("button#add-col", {
-  click: () => {
-    board.addColumn();
-    boardRenderer.render(board);
-  },
+clickHandler.register("button#add-col", () => {
+  board.addColumn();
+  boardRenderer.render(board);
 });
-clickHandler.register("button#settings", {
-  click: () => {
-    document.querySelector("body").classList.toggle("settings");
-  },
+clickHandler.register("button#settings", () => {
+  document.querySelector("body").classList.toggle("settings");
 });
 
 // Sound settings
-clickHandler.register("button.show-modes", {
-  click: (e) => show(e, ".modes"),
+clickHandler.register("button.show-modes", (e) => show(e, ".modes"));
+clickHandler.register("button[data-mode=retrigger]", (e) => {
+  soundFromEvent(e)?.setPlayModeRetrigger();
+  boardRenderer.render(board);
+  saveBoard("play mode was changed");
 });
-clickHandler.register("button[data-mode=retrigger]", {
-  click: (e) => {
-    soundFromEvent(e)?.setPlayModeRetrigger();
-    boardRenderer.render(board);
-    saveBoard("play mode was changed");
-  },
+clickHandler.register("button[data-mode=oneshot]", (e) => {
+  soundFromEvent(e)?.setPlayModeOneShot();
+  boardRenderer.render(board);
+  saveBoard("play mode was changed");
 });
-clickHandler.register("button[data-mode=oneshot]", {
-  click: (e) => {
-    soundFromEvent(e)?.setPlayModeOneShot();
-    boardRenderer.render(board);
-    saveBoard("play mode was changed");
-  },
-});
-clickHandler.register("button[data-mode=gate]", {
-  click: (e) => {
-    soundFromEvent(e)?.setPlayModeGate();
-    boardRenderer.render(board);
-    saveBoard("play mode was changed");
-  },
+clickHandler.register("button[data-mode=gate]", (e) => {
+  soundFromEvent(e)?.setPlayModeGate();
+  boardRenderer.render(board);
+  saveBoard("play mode was changed");
 });
 
-clickHandler.register("button.show-colours", {
-  click: (e) => show(e, ".colours"),
-});
-clickHandler.register("button.colour", {
-  click: (e) => {
-    soundFromEvent(e).colour = window
-      .getComputedStyle(e.target)
-      .getPropertyValue("background-color");
-    boardRenderer.render(board);
-    saveBoard("colour was changed");
-  },
+clickHandler.register("button.show-colours", (e) => show(e, ".colours"));
+clickHandler.register("button.colour", (e) => {
+  soundFromEvent(e).colour = window.getComputedStyle(e.target).getPropertyValue("background-color");
+  boardRenderer.render(board);
+  saveBoard("colour was changed");
 });
 
-clickHandler.register("button.assign-key", {
-  click: (e) => {
-    show(e, ".keys");
-    Promise.race([keyboard.getNextKeyPress(), midi.getNextKeyPress()])
-      .then((key) => {
-        soundFromEvent(e).key = key;
-      })
-      .finally(() => {
-        keyboard.cancelGetKeyPress();
-        midi.cancelGetKeyPress();
-        boardRenderer.render(board);
-        saveBoard("key binding was changed");
-      });
-  },
+clickHandler.register("button.assign-key", (e) => {
+  show(e, ".keys");
+  Promise.race([keyboard.getNextKeyPress(), midi.getNextKeyPress()])
+    .then((key) => {
+      soundFromEvent(e).key = key;
+    })
+    .finally(() => {
+      keyboard.cancelGetKeyPress();
+      midi.cancelGetKeyPress();
+      boardRenderer.render(board);
+      saveBoard("key binding was changed");
+    });
 });
 
-clickHandler.register("button.delete-sound", {
-  click: (e) => {
-    board.removeSound(...coordinatesFromEvent(e));
-    boardRenderer.render(board);
-    saveBoard("sound was removed");
-  },
+clickHandler.register("button.delete-sound", (e) => {
+  board.removeSound(...coordinatesFromEvent(e));
+  boardRenderer.render(board);
+  saveBoard("sound was removed");
 });
 
 // Resize the soundboard when resizing the window
