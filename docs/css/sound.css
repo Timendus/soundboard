@@ -177,6 +177,7 @@
       position: absolute;
       display: none;
       padding: 5px;
+      pointer-events: all;
 
       background-color: var(--background-colour);
 

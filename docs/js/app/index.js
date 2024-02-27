@@ -41,15 +41,15 @@ dragDrop.register(".sound:not(.loaded)", (file, data, e) => {
   const mp3File = new Mp3File(file, data);
 
   // Find our sound
-  let [sound, x, y] = _soundFromEvent(e);
-  sound = sound || new Sound();
+  const [x, y] = coordinatesFromEvent(e);
+  const sound = soundFromEvent(e) || new Sound();
 
   // Update that position
   sound.mp3File = mp3File;
   sound.setVolume(volume);
   board.placeSound(x, y, sound);
 
-  saveBoard("new sound was added");
+  saveBoard();
 
   // Rerender the board (I think the timeout had something to do with the drag
   // and drop stuff not removing the hover class otherwise? Not sure anymore.)
@@ -60,16 +60,16 @@ dragDrop.register(".sound:not(.loaded)", (file, data, e) => {
 
 // Make the soundboard make sounds
 clickHandler.register("body:not(.settings) .sound", {
-  mousedown: (e) => trigger(e, false, (s) => s.push()),
-  mouseup: (e) => trigger(e, false, (s) => s.release()),
+  mousedown: (e) => soundFromEvent(e)?.push(),
+  mouseup: (e) => soundFromEvent(e)?.release(),
 });
 midi.register({
-  keyDown: (key) => keyTrigger(key, (s) => s.push()),
-  keyUp: (key) => keyTrigger(key, (s) => s.release()),
+  keyDown: (key) => board.getByKey(key)?.push(),
+  keyUp: (key) => board.getByKey(key)?.release(),
 });
 keyboard.register({
-  keyDown: (key) => keyTrigger(key, (s) => s.push()),
-  keyUp: (key) => keyTrigger(key, (s) => s.release()),
+  keyDown: (key) => board.getByKey(key)?.push(),
+  keyUp: (key) => board.getByKey(key)?.release(),
 });
 
 // Let the volume slider control the volume
@@ -78,101 +78,92 @@ document.getElementById("volume").addEventListener("input", (e) => {
   board.allSounds().forEach((s) => s.setVolume(volume));
 });
 
-// Configuration
-clickHandler.register("button#clear", {
-  click: () => {
-    board.allSounds().forEach((s) => s.destroy());
-    board = new Board();
-    board.resizeIfEmpty(...rowsAndCols());
-    boardRenderer.render(board);
-    database.removeItem("autosave");
-  },
+// "Navigation" buttons
+clickHandler.register("button#clear", () => {
+  board.allSounds().forEach((s) => s.destroy());
+  board = new Board();
+  board.resizeIfEmpty(...rowsAndCols());
+  boardRenderer.render(board);
+  database.removeItem("autosave");
 });
-clickHandler.register("button#load", {
-  click: async () => {
-    const newBoard = Board.fromStorageObject(
-      JSON.parse(
-        await files.load({
-          types: fileTypes,
-          startIn: "music",
-        })
-      )
-    );
-    board.allSounds().forEach((s) => s.destroy());
-    board = newBoard;
-    boardRenderer.render(board);
-    document.querySelector("body").classList.remove("settings");
-    saveBoard("loaded save file");
-  },
+clickHandler.register("button#load", async () => {
+  const newBoard = Board.fromStorageObject(
+    JSON.parse(
+      await files.load({
+        types: fileTypes,
+        startIn: "music",
+      })
+    )
+  );
+  board.allSounds().forEach((s) => s.destroy());
+  board = newBoard;
+  boardRenderer.render(board);
+  document.querySelector("body").classList.remove("settings");
+  saveBoard();
 });
-clickHandler.register("button#save", {
-  click: () => {
-    files.save({
-      suggestedName: "Untitled.soundboard",
-      contents: JSON.stringify(board.toStorageObject()),
-      types: fileTypes,
-      startIn: "music",
-    });
-  },
+clickHandler.register("button#save", () => {
+  files.save({
+    suggestedName: "Untitled.soundboard",
+    contents: JSON.stringify(board.toStorageObject()),
+    types: fileTypes,
+    startIn: "music",
+  });
 });
-clickHandler.register("button#add-row", {
-  click: () => {
-    board.addRow();
-    boardRenderer.render(board);
-  },
+clickHandler.register("button#add-row", () => {
+  board.addRow();
+  boardRenderer.render(board);
 });
-clickHandler.register("button#add-col", {
-  click: () => {
-    board.addColumn();
-    boardRenderer.render(board);
-  },
+clickHandler.register("button#add-col", () => {
+  board.addColumn();
+  boardRenderer.render(board);
 });
-clickHandler.register("button#settings", {
-  click: () => {
-    document.querySelector("body").classList.toggle("settings");
-  },
+clickHandler.register("button#settings", () => {
+  document.querySelector("body").classList.toggle("settings");
 });
 
 // Sound settings
-clickHandler.register("button[data-mode=retrigger]", {
-  click: (e) => {
-    trigger(e, true, (s) => {
-      s.setPlayModeRetrigger();
-      saveBoard("play mode was changed");
-    });
-  },
+clickHandler.register("button.show-modes", (e) => show(e, ".modes"));
+clickHandler.register("button[data-mode=retrigger]", (e) => {
+  soundFromEvent(e)?.setPlayModeRetrigger();
+  boardRenderer.render(board);
+  saveBoard();
 });
-clickHandler.register("button[data-mode=oneshot]", {
-  click: (e) => {
-    trigger(e, true, (s) => {
-      s.setPlayModeOneShot();
-      saveBoard("play mode was changed");
-    });
-  },
+clickHandler.register("button[data-mode=oneshot]", (e) => {
+  soundFromEvent(e)?.setPlayModeOneShot();
+  boardRenderer.render(board);
+  saveBoard();
 });
-clickHandler.register("button[data-mode=gate]", {
-  click: (e) => {
-    trigger(e, true, (s) => {
-      s.setPlayModeGate();
-      saveBoard("play mode was changed");
-    });
-  },
+clickHandler.register("button[data-mode=gate]", (e) => {
+  soundFromEvent(e)?.setPlayModeGate();
+  boardRenderer.render(board);
+  saveBoard();
 });
 
-clickHandler.register("button.colour", { click: setColour });
-clickHandler.register("button.save-colour", { click: setColour });
-clickHandler.register("button.show-modes", { click: (e) => show(e, ".modes") });
-clickHandler.register("button.show-colours", {
-  click: (e) => show(e, ".colours"),
+clickHandler.register("button.show-colours", (e) => show(e, ".colours"));
+clickHandler.register("button.colour", (e) => {
+  soundFromEvent(e).colour = window.getComputedStyle(e.target).getPropertyValue("background-color");
+  boardRenderer.render(board);
+  saveBoard();
 });
-clickHandler.register("button.assign-key", { click: (e) => captureKey(e) });
-clickHandler.register("button.delete-sound", {
-  click: (e) => {
-    const [_, x, y] = _soundFromEvent(e);
-    board.removeSound(x, y);
-    boardRenderer.render(board);
-    saveBoard("sound was removed");
-  },
+
+clickHandler.register("button.assign-key", (e) => {
+  show(e, ".keys");
+  Promise.race([keyboard.getNextKeyPress(), midi.getNextKeyPress()])
+    .then((key) => {
+      soundFromEvent(e).key = key;
+    })
+    .finally(() => {
+      keyboard.cancelGetKeyPress();
+      midi.cancelGetKeyPress();
+      boardRenderer.render(board);
+      saveBoard();
+    });
+});
+
+clickHandler.register("button.delete-sound", (e) => {
+  board.removeSound(...coordinatesFromEvent(e));
+  boardRenderer.render(board);
+  saveBoard();
 });
 
 // Resize the soundboard when resizing the window
@@ -183,79 +174,60 @@ window.addEventListener("resize", () => {
 
 /* Helper functions */
 
-// Calculate how many rows and columns we can nicely fit on screen
+/**
+ * Calculate how many rows and columns we can nicely fit on screen
+ * @returns {number[]} Number of rows and columns
+ */
 function rowsAndCols() {
   return [Math.round(window.innerHeight / 150), Math.round(window.innerWidth / 200)];
 }
 
-// Load board from IndexedDB or create a new one
+/**
+ * Load board from IndexedDB or create a new one
+ * @returns {Promise<Board>} A promise to the soundboard to show
+ */
 async function findOrCreateBoard() {
   try {
-    const board = Board.fromStorageObject(await database.getItem("autosave"));
-    console.info("💾 Loaded board from IndexedDB");
-    return board;
+    const savedBoard = await database.getItem("autosave");
+    return Board.fromStorageObject(savedBoard);
   } catch (e) {
-    console.info("💾 Started with new board");
     return new Board();
   }
 }
 
-// Store the current soundboard to IndexedDB
-async function saveBoard(reason) {
+/**
+ * Store the current soundboard to IndexedDB
+ */
+async function saveBoard() {
   await database.setItem("autosave", board.toStorageObject());
-  console.info("💾 Saved board to IndexedDB because:", reason);
 }
 
-// Where did we click "in the grid"?
-function _soundFromEvent(e) {
+/**
+ * Where did we click "in the grid"?
+ * @param {Event} e The click event of what was clicked on
+ * @returns {number[]} The coordinates of the clicked sound in the grid
+ */
+function coordinatesFromEvent(e) {
   const soundElm = e.target.closest(".sound");
   const x = soundElm.getAttribute("data-x");
   const y = soundElm.getAttribute("data-y");
-  return [board.getSound(x, y), x, y];
+  return [x, y];
 }
 
-function trigger(e, redraw, callback) {
-  const [sound] = _soundFromEvent(e);
-  if (!sound) return;
-  callback(sound);
-  if (redraw) boardRenderer.render(board);
+/**
+ * Which sound did we click on?
+ * @param {Event} e The click event of what was clicked on
+ * @returns {Sound|null} The sound object if found
+ */
+function soundFromEvent(e) {
+  return board.getSound(...coordinatesFromEvent(e));
 }
 
-function keyTrigger(key, callback) {
-  const sound = board.getByKey(key);
-  if (!sound) return;
-  callback(sound);
-}
-
-function setColour(e) {
-  const [sound] = _soundFromEvent(e);
-  if (!sound) return;
-  let colourValue;
-  if (e.target.classList.contains("save-colour")) {
-    colourValue = e.target.closest(".sound").querySelector("input").value;
-  } else {
-    colourValue = window.getComputedStyle(e.target).getPropertyValue("background-color");
-  }
-  sound.colour = colourValue;
-  boardRenderer.render(board);
-  saveBoard("colour was changed");
-}
-
+/**
+ * Show the element with `className` in the same sound block
+ * @param {Event} e The click event of what was clicked on
+ * @param {string} className Name of class to look for
+ */
 function show(e, className) {
   e.target.closest(".sound").querySelector(className).classList.add("active");
-}
-
-function captureKey(e) {
-  show(e, ".keys");
-  Promise.race([keyboard.getNextKeyPress(), midi.getNextKeyPress()])
-    .then((key) => {
-      let [sound] = _soundFromEvent(e);
-      sound.key = key;
-    })
-    .finally(() => {
-      keyboard.cancelGetKeyPress();
-      midi.cancelGetKeyPress();
-      boardRenderer.render(board);
-      saveBoard("key binding was changed");
-    });
 }

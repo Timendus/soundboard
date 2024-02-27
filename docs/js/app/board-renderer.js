@@ -42,7 +42,7 @@ export default class BoardRenderer {
                     : playMode == PlayMode.Gate
                     ? "gate"
                     : ""
-                }'></button>
+                }' title="Change playback mode"></button>
                 <div class='modes'>
                   <button data-mode='retrigger' class='retrigger ${
                     playMode == PlayMode.Retrigger ? "active" : ""
@@ -54,7 +54,7 @@ export default class BoardRenderer {
                     playMode == PlayMode.Gate ? "active" : ""
                   }'></button>
                 </div>
-                <button class='show-colours'></button>
+                <button class='show-colours' title="Change colour"></button>
                 <div class='colours'>
                   <button class='colour blue'></button>
                   <button class='colour red'></button>
@@ -63,15 +63,14 @@ export default class BoardRenderer {
                   <button class='colour yellow'></button>
                   <button class='colour green'></button>
                   <button class='colour orange'></button>
-                  <!--<input type="text" length="10" value="${colour}"/><button class='save-colour'>Save</button>-->
                 </div>
-                <button class='assign-key ${sound.key ? "assigned" : ""}'>${
-                    sound.key ? sound.key : ""
-                  }</button>
+                <button class='assign-key ${
+                  sound.key ? "assigned" : ""
+                }' title="Assign trigger button">${sound.key ? sound.key : ""}</button>
                 <div class='keys'>
                   Press a key...
                 </div>
-                <button class='delete-sound' title='Clear this sound'>🗑️</button>
+                <button class='delete-sound' title='Clear sound'>🗑️</button>
               </div>
             `
                 : ""
